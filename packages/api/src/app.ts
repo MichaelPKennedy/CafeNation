@@ -112,23 +112,23 @@ const Schedules = sequelize.models.Schedules
 const Transactions = sequelize.models.Transactions
 
 // Cart Relationships
-Cart.belongsTo(sequelize.models.Order, { foreignKey: 'order_id' })
-Cart.belongsTo(sequelize.models.Product, { foreignKey: 'product_id' })
+Cart.belongsTo(sequelize.models.Orders, { foreignKey: 'order_id' })
+Cart.belongsTo(sequelize.models.Products, { foreignKey: 'product_id' })
 
 // Customer Relationships
-Customers.hasMany(sequelize.models.Order, { foreignKey: 'customer_id' })
-Customers.hasMany(sequelize.models.Reservation, { foreignKey: 'customer_id' })
-Customers.hasMany(sequelize.models.Transaction, { foreignKey: 'customer_id' })
+Customers.hasMany(sequelize.models.Orders, { foreignKey: 'customer_id' })
+Customers.hasMany(sequelize.models.Reservations, { foreignKey: 'customer_id' })
+Customers.hasMany(sequelize.models.Transactions, { foreignKey: 'customer_id' })
 
 // Order Relationships
 Orders.belongsTo(sequelize.models.Customers, { foreignKey: 'customer_id' })
-Orders.belongsTo(sequelize.models.Location, { foreignKey: 'location_id' })
+Orders.belongsTo(sequelize.models.Locations, { foreignKey: 'location_id' })
 Orders.hasMany(sequelize.models.Cart, { foreignKey: 'order_id' })
 Orders.hasMany(sequelize.models.OrderItemDetails, { foreignKey: 'order_id' })
-Orders.hasMany(sequelize.models.Transaction, { foreignKey: 'order_id' })
+Orders.hasMany(sequelize.models.Transactions, { foreignKey: 'order_id' })
 
 // Product Relationships
-Products.belongsTo(sequelize.models.MenuCategory, { foreignKey: 'category_id' })
+Products.belongsTo(sequelize.models.MenuCategories, { foreignKey: 'category_id' })
 Products.hasMany(sequelize.models.Cart, { foreignKey: 'product_id' })
 Products.hasMany(sequelize.models.OrderItemDetails, { foreignKey: 'product_id' })
 Products.hasMany(sequelize.models.ProductIngredients, { foreignKey: 'product_id' })
