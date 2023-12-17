@@ -1,23 +1,23 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
-import { Customers } from './customers.model'
+import { Users } from './users.model'
 import { Orders } from './orders.model'
 
-export class Transaction extends Model {}
+export class Transactions extends Model {}
 
 export const TransactionModel = (sequelize: Sequelize) => {
-  Transaction.init(
+  Transactions.init(
     {
       transaction_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
       },
-      customer_id: {
+      user_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-          model: Customers,
-          key: 'customer_id'
+          model: Users,
+          key: 'user_id'
         }
       },
       order_id: {

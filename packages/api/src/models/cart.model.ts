@@ -35,7 +35,7 @@ export const CartModel = (sequelize: Sequelize) => {
     },
     {
       sequelize,
-      tableName: 'cart',
+      tableName: 'Cart',
       timestamps: false
     }
   )

@@ -2,10 +2,10 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { Menus } from './menus.model'
 import { Products } from './products.model'
 
-export class MenuItem extends Model {}
+export class MenuItems extends Model {}
 
 export const MenuItemModel = (sequelize: Sequelize) => {
-  MenuItem.init(
+  MenuItems.init(
     {
       product_id: {
         type: DataTypes.INTEGER,

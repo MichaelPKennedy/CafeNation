@@ -1,5 +1,5 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
-import { Customers } from './customers.model'
+import { Users } from './users.model'
 import { Locations } from './locations.model'
 
 export class Orders extends Model {}
@@ -12,12 +12,12 @@ export const OrderModel = (sequelize: Sequelize) => {
         primaryKey: true,
         autoIncrement: true
       },
-      customer_id: {
+      user_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-          model: Customers,
-          key: 'customer_id'
+          model: Users,
+          key: 'user_id'
         }
       },
       location_id: {

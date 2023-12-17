@@ -1,11 +1,11 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
-import { Customers } from './customers.model'
+import { Users } from './users.model'
 import { Locations } from './locations.model'
 
-export class Reservation extends Model {}
+export class Reservations extends Model {}
 
 export const ReservationModel = (sequelize: Sequelize) => {
-  Reservation.init(
+  Reservations.init(
     {
       reservation_id: {
         type: DataTypes.INTEGER,
@@ -20,12 +20,12 @@ export const ReservationModel = (sequelize: Sequelize) => {
           key: 'location_id'
         }
       },
-      customer_id: {
+      user_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-          model: Customers,
-          key: 'customer_id'
+          model: Users,
+          key: 'user_id'
         }
       },
       guests: {

@@ -27,7 +27,7 @@ import { authentication } from './authentication'
 import { services } from './services/index'
 import { channels } from './channels'
 import { CartModel } from './models/cart.model'
-import { CustomerModel } from './models/customers.model'
+import { UsersModel } from './models/users.model'
 import { IngredientModel } from './models/ingredients.model'
 import { InventoryModel } from './models/inventory.model'
 import { InventoryIngredientModel } from './models/inventory-ingredients.model'
@@ -73,27 +73,26 @@ sequelize
   })
 
 // Initialize your model with this instance
-CartModel(sequelize)
-CustomerModel(sequelize)
+MenuCategoryModel(sequelize)
+RestaurantModel(sequelize)
+LocationModel(sequelize)
+ProductModel(sequelize)
 IngredientModel(sequelize)
+ProductIngredientModel(sequelize)
 InventoryModel(sequelize)
 InventoryIngredientModel(sequelize)
-LocationModel(sequelize)
-MenuCategoryModel(sequelize)
-MenuItemModel(sequelize)
 MenuModel(sequelize)
-MenuScheduleModel(sequelize)
-OrderItemDetailModel(sequelize)
-OrderModel(sequelize)
-ProductIngredientModel(sequelize)
-ProductModel(sequelize)
-ReservationModel(sequelize)
-RestaurantModel(sequelize)
+MenuItemModel(sequelize)
 ScheduleModel(sequelize)
+MenuScheduleModel(sequelize)
+UsersModel(sequelize)
+OrderModel(sequelize)
+CartModel(sequelize)
+OrderItemDetailModel(sequelize)
 TransactionModel(sequelize)
+ReservationModel(sequelize)
 
 const Cart = sequelize.models.Cart
-const Customers = sequelize.models.Customers
 const Ingredients = sequelize.models.Ingredients
 const Inventory = sequelize.models.Inventory
 const InventoryIngredients = sequelize.models.InventoryIngredients
@@ -110,18 +109,19 @@ const Reservations = sequelize.models.Reservations
 const Restaurants = sequelize.models.Restaurants
 const Schedules = sequelize.models.Schedules
 const Transactions = sequelize.models.Transactions
+const Users = sequelize.models.Users
 
 // Cart Relationships
 Cart.belongsTo(sequelize.models.Orders, { foreignKey: 'order_id' })
 Cart.belongsTo(sequelize.models.Products, { foreignKey: 'product_id' })
 
 // Customer Relationships
-Customers.hasMany(sequelize.models.Orders, { foreignKey: 'customer_id' })
-Customers.hasMany(sequelize.models.Reservations, { foreignKey: 'customer_id' })
-Customers.hasMany(sequelize.models.Transactions, { foreignKey: 'customer_id' })
+Users.hasMany(sequelize.models.Orders, { foreignKey: 'user_id' })
+Users.hasMany(sequelize.models.Reservations, { foreignKey: 'user_id' })
+Users.hasMany(sequelize.models.Transactions, { foreignKey: 'user_id' })
 
 // Order Relationships
-Orders.belongsTo(sequelize.models.Customers, { foreignKey: 'customer_id' })
+Orders.belongsTo(sequelize.models.Users, { foreignKey: 'user_id' })
 Orders.belongsTo(sequelize.models.Locations, { foreignKey: 'location_id' })
 Orders.hasMany(sequelize.models.Cart, { foreignKey: 'order_id' })
 Orders.hasMany(sequelize.models.OrderItemDetails, { foreignKey: 'order_id' })
@@ -160,7 +160,7 @@ Locations.hasMany(sequelize.models.Reservations, { foreignKey: 'location_id' })
 Locations.hasMany(sequelize.models.Schedules, { foreignKey: 'location_id' })
 
 // Reservation Relationships
-Reservations.belongsTo(sequelize.models.Customers, { foreignKey: 'customer_id' })
+Reservations.belongsTo(sequelize.models.Users, { foreignKey: 'user_id' })
 Reservations.belongsTo(sequelize.models.Locations, { foreignKey: 'location_id' })
 
 // Restaurant Relationships
@@ -171,7 +171,7 @@ Schedules.belongsTo(sequelize.models.Locations, { foreignKey: 'location_id' })
 Schedules.hasMany(sequelize.models.MenusSchedule, { foreignKey: 'schedule_id' })
 
 // Transaction Relationships
-Transactions.belongsTo(sequelize.models.Customers, { foreignKey: 'customer_id' })
+Transactions.belongsTo(sequelize.models.Users, { foreignKey: 'user_id' })
 Transactions.belongsTo(sequelize.models.Orders, { foreignKey: 'order_id' })
 
 // OrderItemDetails Relationships
