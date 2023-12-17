@@ -1,0 +1,21 @@
+{
+  "sequelize": {
+    "host": "DB_HOST",
+    "database": "DB_NAME",
+    "username": "DB_USER",
+    "password": "DB_PASS",
+    "port": "DB_PORT"
+  },
+  "authentication": {
+    "secret": "SECRET_KEY",
+    "entity": "AUTHENTICATION_ENTITY",
+    "service": "AUTHENTICATION_SERVICE",
+    "entityId": "AUTHENTICATION_ENTITY_ID",
+    "oauth": {
+      "google": {
+        "clientID": "GOOGLE_CLIENT_ID",
+        "clientSecret": "GOOGLE_CLIENT_SECRET"
+      }
+    }
+  }
+}

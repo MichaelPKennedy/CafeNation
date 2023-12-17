@@ -1,0 +1,142 @@
+/* Container for the entire job data display */
+
+/* Container for the basic info section */
+.basicInfoContainer {
+  display: flex;
+  flex-direction: column; /* Stacks items vertically on mobile */
+  gap: 10px; /* Adjust gap to your preference */
+  margin-bottom: 20px;
+}
+
+/* Style for each basic info item */
+.basicInfoItem {
+  background-color: #f2f2f2;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.btnDropdown {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 1rem;
+  transition: background-color 0.2s;
+  margin-right: 20px;
+  background-color: transparent;
+  color: #17a2b8;
+  border: 1px solid #17a2b8;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.btnDropdown:hover {
+  background-color: #96e0e6;
+  color: white;
+}
+
+/* Media query for desktop screens */
+@media (min-width: 768px) {
+  /* Adjust the min-width as necessary for your design */
+  .basicInfoContainer {
+    flex-direction: row; /* Places items side by side on desktop */
+    justify-content: space-evenly; /* Distributes space evenly between items */
+  }
+}
+
+.jobDataContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+}
+
+/* Styling for each job card */
+.jobCard {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  width: 100%;
+  height: auto;
+  padding: 15px;
+  text-align: center;
+}
+
+/* Header of each job card */
+.jobCardHeader {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Accordion styles */
+.accordionHeader {
+  background-color: #f7f7f7;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+.accordionBody {
+  padding: 10px;
+  background-color: #fafafa;
+  border-radius: 5px;
+}
+
+/* List styles within accordion body */
+.salaryDetailsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.salaryDetailsList li {
+  margin-bottom: 5px;
+  font-size: 0.9em;
+  color: #444;
+}
+
+/* JobData.module.css */
+
+.jobDataContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.jobCard {
+  width: 100%; /* Adjust width as needed */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 40px;
+}
+
+.toggleButtons {
+  display: flex;
+  justify-content: start;
+  gap: 10px;
+  padding: 15px;
+}
+
+.toggleButtons .btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.toggleButtons .btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.toggleButtons .btn-primary.active,
+.toggleButtons .btn-secondary.active {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+/* You can also add custom styles for the chart if needed */
+.chartContainer {
+  padding: 15px;
+}
