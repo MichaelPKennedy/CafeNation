@@ -191,24 +191,6 @@ ProductIngredients.belongsTo(sequelize.models.Ingredients, { foreignKey: 'ingred
 MenusSchedule.belongsTo(sequelize.models.Menus, { foreignKey: 'menu_id' })
 MenusSchedule.belongsTo(sequelize.models.Schedules, { foreignKey: 'schedule_id' })
 
-// Configure services and real-time functionality
-app.configure(rest())
-app.configure(
-  socketio({
-    cors: {
-      origin: app.get('origins')
-    }
-  })
-)
-app.configure(authentication)
-app.configure(oauth({}))
-app.configure(services)
-app.configure(channels)
-
-// Configure a middleware for 404s and the error handler
-app.use(notFound())
-app.use(errorHandler({ logger }))
-
 //setup Square connection
 const squareClient = new Client({
   environment:
@@ -240,6 +222,24 @@ const handleCallback = async (req: Request, res: Response, next: NextFunction) =
 
 app.post('/square/request_token', handleRequestToken)
 app.post('/square/callback', handleCallback)
+
+// Configure services and real-time functionality
+app.configure(rest())
+app.configure(
+  socketio({
+    cors: {
+      origin: app.get('origins')
+    }
+  })
+)
+app.configure(authentication)
+app.configure(oauth({}))
+app.configure(services)
+app.configure(channels)
+
+// Configure a middleware for 404s and the error handler
+app.use(notFound())
+app.use(errorHandler({ logger }))
 
 // Register hooks that run on all service methods
 app.hooks({
