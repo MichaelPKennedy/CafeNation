@@ -4,6 +4,12 @@ import type { TransportConnection, Application } from '@feathersjs/feathers'
 import authenticationClient from '@feathersjs/authentication-client'
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
+import { orderClient } from './services/order/order.shared'
+export type { Order, OrderData, OrderQuery, OrderPatch } from './services/order/order.shared'
+
+import { cartClient } from './services/cart/cart.shared'
+export type { Cart, CartData, CartQuery, CartPatch } from './services/cart/cart.shared'
+
 import { menuClient } from './services/menu/menu.shared'
 export type { Menu, MenuData, MenuQuery, MenuPatch } from './services/menu/menu.shared'
 
@@ -42,5 +48,7 @@ export const createClient = <Configuration = any,>(
   client.configure(squareClient)
   client.configure(userClient)
   client.configure(menuClient)
+  client.configure(cartClient)
+  client.configure(orderClient)
   return client
 }
