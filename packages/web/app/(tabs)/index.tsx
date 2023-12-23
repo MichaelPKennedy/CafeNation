@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-import MenuItemsScreen from "../../components/MenuItemsScreen";
+import MenuItemsScreen from "../../components/FeaturedScreen";
 import { Text, View } from "../../components/Themed";
 
 export default function TabOneScreen() {

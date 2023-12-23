@@ -15,7 +15,9 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "jsEngine": "hermes",
+      "bundleIdentifier": "com.kennedy01mike.web"
     },
     "android": {
       "adaptiveIcon": {
@@ -31,6 +33,14 @@
     "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "4b388761-137a-4454-8f98-981f070d747c"
+      }
     }
   }
 }

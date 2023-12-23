@@ -48,6 +48,7 @@ export class MenuService implements ServiceMethods<any> {
 
     if (catalogData.length > 0) {
       // Cache hit, return the data
+      console.log('cache hit')
       return catalogData
     } else {
       // Cache miss, fetch the data from Square API
@@ -62,7 +63,7 @@ export class MenuService implements ServiceMethods<any> {
 
         // Cache the processed response
         myCache.set(cacheKey, catalogData)
-
+        console.log('find response', catalogData)
         return catalogData
       } catch (error) {
         console.error('Error calling Square Catalog API:', error)

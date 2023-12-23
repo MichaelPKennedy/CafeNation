@@ -1,7 +1,3 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, FlatList, Text, View } from "react-native";
-import feathersClient from "../feathersClient";
-
 interface MenuItem {
   type: string;
   id: string;
@@ -95,60 +91,3 @@ interface ItemOptionValue {
   itemOptionId: string;
   itemOptionValueId: string;
 }
-
-const MenuItemsScreen = () => {
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-
-  useEffect(() => {
-    feathersClient
-      .service("menu")
-      .find()
-      .then((response: { data: MenuItem[] }) => {
-        setMenuItems(response.data);
-      })
-      .catch((error: Error) => {
-        console.error("Error fetching menu items:", error);
-      });
-  }, []);
-
-  const renderMenuItem = ({ item }: { item: MenuItem }) => {
-    const data = item.categoryData || item.itemData || item.itemOptionData;
-    return (
-      <View style={styles.itemContainer}>
-        <Text style={styles.itemName}>{data?.name}</Text>
-      </View>
-    );
-  };
-
-  return (
-    <View style={styles.container}>
-      <FlatList
-        data={menuItems}
-        renderItem={renderMenuItem}
-        keyExtractor={(item) => item.id}
-      />
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  itemContainer: {
-    backgroundColor: "#f9c2ff",
-    padding: 20,
-    marginVertical: 8,
-    borderRadius: 10,
-  },
-  itemName: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  itemDescription: {
-    fontSize: 14,
-  },
-});
-
-export default MenuItemsScreen;
