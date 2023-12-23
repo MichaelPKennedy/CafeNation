@@ -19,52 +19,44 @@ interface Item {
   // Add other properties that an item would have
 }
 
-interface Category {
-  id: string;
-  name: string;
-  items: Item[];
-}
-
 // Mock data
-const categories: Category[] = [];
+const categories: CategoryData[] = [];
 
 interface CategoryRowProps {
-  category: Category;
+  category: MenuItem;
 }
 
 export type RootStackParamList = {
   HomeScreen: undefined;
   CategoryItemsScreen: {
     categoryId: string;
-    categoryName: string;
+    categoryName: string | undefined;
   };
 };
 
 const CategoryRow: React.FC<CategoryRowProps> = ({ category }) => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  console.log("category in categoryRow", category);
 
   const viewAll = () => {
     navigation.navigate("CategoryItemsScreen", {
       categoryId: category.id,
-      categoryName: category.name,
+      categoryName: category?.categoryData?.name,
     });
   };
 
   return (
     <View style={styles.categoryContainer}>
       <View style={styles.categoryHeader}>
-        <Text style={styles.categoryTitle}>{category.name}</Text>
+        <Text style={styles.categoryTitle}>{category.categoryData?.name}</Text>
         <TouchableOpacity onPress={viewAll}>
-          <Text style={styles.viewAllText}>
-            See all {category.items.length}
-          </Text>
+          <Text style={styles.viewAllText}>See all items</Text>
         </TouchableOpacity>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {category.items.map((item) => (
+        {category.categoryItems?.map((item) => (
           <View style={styles.itemContainer} key={item.id}>
-            {/* Render your item component */}
-            <Text>{item.name}</Text>
+            <Text>{item.itemData?.name}</Text>
           </View>
         ))}
       </ScrollView>
@@ -72,13 +64,30 @@ const CategoryRow: React.FC<CategoryRowProps> = ({ category }) => {
   );
 };
 
-const FeaturedScreen = (data: MenuItem[]) => {
+const FeaturedScreen: React.FC<FeaturedScreenProps> = ({ data }) => {
+  const categories = data?.filter((item) => item.categoryData);
+  if (categories) {
+    for (const category of categories) {
+      category.categoryItems = [];
+      for (const item of data) {
+        if (
+          item.itemData &&
+          item.itemData.categories.some((cat) => cat.id === category.id)
+        ) {
+          category.categoryItems.push(item);
+        }
+      }
+    }
+  }
+
   return (
-    <FlatList
-      data={categories}
-      renderItem={({ item }) => <CategoryRow category={item} />}
-      keyExtractor={(item) => item.id}
-    />
+    categories && (
+      <FlatList
+        data={categories}
+        renderItem={({ item }) => <CategoryRow category={item} />}
+        keyExtractor={(item) => item.id}
+      />
+    )
   );
 };
 

@@ -16,6 +16,7 @@
     "@expo/vector-icons": "^13.0.0",
     "@feathersjs/feathers": "^5.0.12",
     "@feathersjs/socketio-client": "^5.0.12",
+    "@react-navigation/material-top-tabs": "^6.6.5",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/stack": "^6.3.20",
     "expo": "~49.0.15",

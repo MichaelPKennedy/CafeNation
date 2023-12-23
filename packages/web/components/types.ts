@@ -1,3 +1,9 @@
+//props types for components
+interface FeaturedScreenProps {
+  data: MenuItem[];
+}
+
+//types for square menu items
 interface MenuItem {
   type: string;
   id: string;
@@ -8,6 +14,7 @@ interface MenuItem {
   categoryData?: CategoryData;
   itemOptionData?: ItemOptionData;
   itemData?: ItemData;
+  categoryItems?: MenuItem[];
 }
 
 interface CategoryData {
@@ -45,7 +52,7 @@ interface ItemData {
   productType: string;
   skipModifierScreen: boolean;
   itemOptionIds: ItemOptions;
-  categories: Categories;
+  categories: Categories[];
   descriptionHtml: string;
   descriptionPlaintext: string;
   isArchived: boolean;
