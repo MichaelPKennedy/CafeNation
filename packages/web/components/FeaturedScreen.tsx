@@ -6,21 +6,10 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
+  Image,
 } from "react-native";
-import { useNavigation, NavigationContainer } from "@react-navigation/native";
-import {
-  StackNavigationProp,
-  createStackNavigator,
-} from "@react-navigation/stack";
-
-interface Item {
-  id: string;
-  name: string;
-  // Add other properties that an item would have
-}
-
-// Mock data
-const categories: CategoryData[] = [];
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 interface CategoryRowProps {
   category: MenuItem;
@@ -50,13 +39,18 @@ const CategoryRow: React.FC<CategoryRowProps> = ({ category }) => {
       <View style={styles.categoryHeader}>
         <Text style={styles.categoryTitle}>{category.categoryData?.name}</Text>
         <TouchableOpacity onPress={viewAll}>
-          <Text style={styles.viewAllText}>See all items</Text>
+          <Text style={styles.viewAllText}>
+            See all {category.categoryItems?.length} items
+          </Text>
         </TouchableOpacity>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {category.categoryItems?.map((item) => (
           <View style={styles.itemContainer} key={item.id}>
-            <Text>{item.itemData?.name}</Text>
+            {item.imageUrl && (
+              <Image source={{ uri: item.imageUrl }} style={styles.itemImage} />
+            )}
+            <Text style={styles.itemName}>{item.itemData?.name}</Text>
           </View>
         ))}
       </ScrollView>
@@ -93,31 +87,43 @@ const FeaturedScreen: React.FC<FeaturedScreenProps> = ({ data }) => {
 
 const styles = StyleSheet.create({
   categoryContainer: {
-    // Styles for category container
+    //add top border
+    borderBottomWidth: 0.5,
+    paddingTop: 20,
+    paddingBottom: 10,
   },
   categoryHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 10,
-    // Additional styles
   },
   categoryTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    // Additional styles
+    marginBottom: 10,
+    marginLeft: 5,
   },
   viewAllText: {
-    fontSize: 16,
-    color: "#007bff", // Example color for "See all" link
-    // Additional styles
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "green",
   },
   itemContainer: {
-    width: 120, // Example item width, adjust as needed
+    width: 145,
     marginHorizontal: 8,
-    // Additional styles
   },
-  // Additional styles as needed
+  itemImage: {
+    width: 145,
+    height: 145,
+    borderRadius: 72.5,
+    marginBottom: 12,
+  },
+  itemName: {
+    fontSize: 14,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 });
 
 export default FeaturedScreen;

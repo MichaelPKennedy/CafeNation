@@ -15,6 +15,7 @@ interface MenuItem {
   itemOptionData?: ItemOptionData;
   itemData?: ItemData;
   categoryItems?: MenuItem[];
+  imageUrl?: string;
 }
 
 interface CategoryData {
@@ -57,6 +58,14 @@ interface ItemData {
   descriptionPlaintext: string;
   isArchived: boolean;
   reportingCategory: ReportingCategory;
+  modifierListInfo: modifierListInfo[];
+}
+
+interface modifierListInfo {
+  modifierListId: string;
+  minSelectedModifiers: number;
+  maxSelectedModifiers: number;
+  enabled: boolean;
 }
 
 interface ReportingCategory {

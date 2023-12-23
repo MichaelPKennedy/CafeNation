@@ -35,7 +35,6 @@ export class MenuService implements ServiceMethods<any> {
   }
 
   processApiResponse(response: any): any[] {
-    // Ensure that the processed response is an array
     const processedResponse = Array.isArray(response)
       ? response.map(this.bigIntToString.bind(this))
       : [this.bigIntToString(response)]
@@ -47,11 +46,8 @@ export class MenuService implements ServiceMethods<any> {
     let catalogData: any[] = myCache.get(cacheKey) || []
 
     if (catalogData.length > 0) {
-      // Cache hit, return the data
-      console.log('cache hit')
       return catalogData
     } else {
-      // Cache miss, fetch the data from Square API
       try {
         const client = new Client({
           environment: process.env.SQ_ENVIRONMENT,
@@ -61,9 +57,21 @@ export class MenuService implements ServiceMethods<any> {
         const response = await client.catalogApi.listCatalog()
         catalogData = this.processApiResponse(response.result.objects)
 
-        // Cache the processed response
+        for (const item of catalogData) {
+          if (item.type === 'ITEM' && item?.itemData?.imageIds) {
+            try {
+              const imageId = item.itemData?.imageIds?.[0]
+              const imageResponse = await client.catalogApi.retrieveCatalogObject(imageId, true)
+              const imageUrl = imageResponse.result.object?.imageData?.url
+
+              item.imageUrl = imageUrl
+            } catch (error) {
+              console.error('Error fetching image data:', error)
+            }
+          }
+        }
+
         myCache.set(cacheKey, catalogData)
-        console.log('find response', catalogData)
         return catalogData
       } catch (error) {
         console.error('Error calling Square Catalog API:', error)
