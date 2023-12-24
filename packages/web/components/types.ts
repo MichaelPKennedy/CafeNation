@@ -3,6 +3,19 @@ interface FeaturedScreenProps {
   data: MenuItem[];
 }
 
+type RootStackParamList = {
+  HomeScreen: undefined;
+  CategoryScreen: {
+    categoryId: string;
+    categoryName: string | undefined;
+    categoryItems: MenuItem[] | undefined;
+  };
+};
+
+interface CategoryRowProps {
+  category: MenuItem;
+}
+
 //types for square menu items
 interface MenuItem {
   type: string;
@@ -15,7 +28,11 @@ interface MenuItem {
   itemOptionData?: ItemOptionData;
   itemData?: ItemData;
   categoryItems?: MenuItem[];
+  parentType?: string;
   imageUrl?: string;
+  categoryImage?: boolean;
+  featured?: boolean;
+  customAttributeValues?: object;
 }
 
 interface CategoryData {

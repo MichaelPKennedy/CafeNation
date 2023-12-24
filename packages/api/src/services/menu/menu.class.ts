@@ -5,6 +5,7 @@ import { Op } from 'sequelize'
 const process = require('process')
 const { Client } = require('square')
 import NodeCache from 'node-cache'
+const _ = require('lodash')
 
 const myCache = new NodeCache({ stdTTL: 600 }) // Cache for 10 minutes
 
@@ -12,6 +13,10 @@ export type { Menu, MenuData, MenuPatch, MenuQuery }
 
 export interface MenuParams extends Params {
   query?: { latitude: string; longitude: string }
+}
+
+export interface category {
+  id: string
 }
 
 export class MenuService implements ServiceMethods<any> {
@@ -57,16 +62,65 @@ export class MenuService implements ServiceMethods<any> {
         const response = await client.catalogApi.listCatalog()
         catalogData = this.processApiResponse(response.result.objects)
 
+        //TODO: turn the following logic into one or more feathers hooks
+        const categories = catalogData?.filter((item) => item.categoryData)
+        if (categories) {
+          for (const category of categories) {
+            category.categoryItems = []
+            for (const item of catalogData) {
+              if (item.itemData && item.itemData.categories.some((cat: category) => cat.id === category.id)) {
+                category.categoryItems.push(item)
+              }
+            }
+          }
+        }
+        //set parent type for categories
         for (const item of catalogData) {
+          if (item.type === 'CATEGORY') {
+            const splitName = item.categoryData.name.split('-', 2)
+            if (splitName.length === 2) {
+              item.parentType = _.startCase(_.toLower(splitName[0]))
+              item.categoryData.name = splitName[1]
+            }
+          }
+          //set image urls
           if (item.type === 'ITEM' && item?.itemData?.imageIds) {
             try {
               const imageId = item.itemData?.imageIds?.[0]
               const imageResponse = await client.catalogApi.retrieveCatalogObject(imageId, true)
               const imageUrl = imageResponse.result.object?.imageData?.url
-
               item.imageUrl = imageUrl
+
+              if (item.customAttributeValues) {
+                for (const key in item.customAttributeValues) {
+                  const attribute = item.customAttributeValues[key]
+                  if (attribute.name === 'Category Image' && attribute.booleanValue === true) {
+                    item.categoryImage = true
+                  }
+                  if (attribute.name === 'Featured' && attribute.booleanValue === true) {
+                    item.featured = true
+                  }
+                }
+              }
             } catch (error) {
               console.error('Error fetching image data:', error)
+            }
+          }
+        }
+
+        //add items to secondary categories
+        for (const item of catalogData) {
+          if (item.customAttributeValues) {
+            for (const key in item.customAttributeValues) {
+              const attribute = item.customAttributeValues[key]
+              if (attribute.name === 'Secondary Category') {
+                const secondaryCategory = catalogData.find(
+                  (category) => category?.categoryData?.name === attribute.stringValue
+                )
+                if (secondaryCategory) {
+                  secondaryCategory.categoryItems.push(item)
+                }
+              }
             }
           }
         }

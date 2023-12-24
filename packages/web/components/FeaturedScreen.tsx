@@ -11,26 +11,16 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
-interface CategoryRowProps {
-  category: MenuItem;
-}
-
-export type RootStackParamList = {
-  HomeScreen: undefined;
-  CategoryItemsScreen: {
-    categoryId: string;
-    categoryName: string | undefined;
-  };
-};
-
 const CategoryRow: React.FC<CategoryRowProps> = ({ category }) => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  console.log("category in categoryRow", category);
+
+  const categoryItems = category.categoryItems?.filter((item) => item.featured);
 
   const viewAll = () => {
-    navigation.navigate("CategoryItemsScreen", {
+    navigation.navigate("CategoryScreen", {
       categoryId: category.id,
       categoryName: category?.categoryData?.name,
+      categoryItems,
     });
   };
 
@@ -40,12 +30,12 @@ const CategoryRow: React.FC<CategoryRowProps> = ({ category }) => {
         <Text style={styles.categoryTitle}>{category.categoryData?.name}</Text>
         <TouchableOpacity onPress={viewAll}>
           <Text style={styles.viewAllText}>
-            See all {category.categoryItems?.length} items
+            See all {categoryItems?.length} items
           </Text>
         </TouchableOpacity>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {category.categoryItems?.map((item) => (
+        {categoryItems?.map((item) => (
           <View style={styles.itemContainer} key={item.id}>
             {item.imageUrl && (
               <Image source={{ uri: item.imageUrl }} style={styles.itemImage} />
@@ -59,20 +49,9 @@ const CategoryRow: React.FC<CategoryRowProps> = ({ category }) => {
 };
 
 const FeaturedScreen: React.FC<FeaturedScreenProps> = ({ data }) => {
-  const categories = data?.filter((item) => item.categoryData);
-  if (categories) {
-    for (const category of categories) {
-      category.categoryItems = [];
-      for (const item of data) {
-        if (
-          item.itemData &&
-          item.itemData.categories.some((cat) => cat.id === category.id)
-        ) {
-          category.categoryItems.push(item);
-        }
-      }
-    }
-  }
+  const categories = data?.filter(
+    (item) => item.parentType && item.parentType === "Featured"
+  );
 
   return (
     categories && (
