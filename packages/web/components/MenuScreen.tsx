@@ -10,22 +10,13 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
-// Props for the main screen component
-interface MenuScreenProps {
-  data: MenuItem[];
-}
-
 // Component to render each category row
-const CategoryRow: React.FC<CategoryRowProps> = ({ category }) => {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-
+const CategoryRow: React.FC<CategoryRowProps> = ({
+  category,
+  onSelectCategory,
+}) => {
   const onPressCategory = () => {
-    // Navigate to the category's item listing screen
-    navigation.navigate("CategoryScreen", {
-      categoryId: category.id,
-      categoryName: category?.categoryData?.name,
-      categoryItems: category.categoryItems,
-    });
+    onSelectCategory(category.categoryData?.name);
   };
 
   // Retrieve the category's image from the items
@@ -45,7 +36,7 @@ const CategoryRow: React.FC<CategoryRowProps> = ({ category }) => {
   );
 };
 
-const MenuScreen: React.FC<MenuScreenProps> = ({ data }) => {
+const MenuScreen: React.FC<MenuScreenProps> = ({ data, onSelectCategory }) => {
   const parentTypes = Array.from(
     new Set(
       data
@@ -69,7 +60,10 @@ const MenuScreen: React.FC<MenuScreenProps> = ({ data }) => {
           <Text style={styles.parentCategoryTitle}>{item.parentType}</Text>
           {item.categories.map((category) => (
             <React.Fragment key={category.id}>
-              <CategoryRow category={category} />
+              <CategoryRow
+                category={category}
+                onSelectCategory={onSelectCategory}
+              />
               <View style={styles.separator} />
             </React.Fragment>
           ))}

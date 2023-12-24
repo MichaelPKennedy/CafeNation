@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import FeaturedScreen from "./FeaturedScreen";
-import MenuScreen from "./MenuScreen";
-import { StyleSheet, FlatList, Text, View } from "react-native";
+import { View, StyleSheet } from "react-native";
+import OrderTabs from "./OrderTabs";
+import CategoryScreen from "./CategoryScreen";
 import feathersClient from "../feathersClient";
-
-const Tab = createMaterialTopTabNavigator();
 
 const OrderTab = () => {
   const [menuData, setMenuData] = useState<MenuItem[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [showCategory, setShowCategory] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -27,24 +25,34 @@ const OrderTab = () => {
       });
   }, []);
 
+  useEffect(() => {
+    if (selectedCategory) {
+      setShowCategory(true);
+    } else {
+      setShowCategory(false);
+    }
+  }, [selectedCategory]);
+
+  const handleSelectCategory = (category: string) => {
+    setSelectedCategory(category);
+  };
+
   return (
-    <Tab.Navigator>
-      {isLoading ? (
-        <Tab.Screen name="Featured">{() => <Text>Loading...</Text>}</Tab.Screen>
+    <View style={styles.container}>
+      {!showCategory ? (
+        <OrderTabs data={menuData} onSelectCategory={handleSelectCategory} />
       ) : (
-        <>
-          <Tab.Screen
-            name="Featured"
-            children={() => <FeaturedScreen data={menuData} />}
-          />
-          <Tab.Screen
-            name="Menu"
-            children={() => <MenuScreen data={menuData} />}
-          />
-        </>
+        <CategoryScreen data={menuData} selectedCategory={selectedCategory} />
       )}
-    </Tab.Navigator>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  // Add any other styles you need
+});
 
 export default OrderTab;

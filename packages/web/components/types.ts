@@ -1,6 +1,21 @@
 //props types for components
 interface FeaturedScreenProps {
+  data?: MenuItem[];
+  onSelectCategory: any;
+}
+
+interface MenuScreenProps {
   data: MenuItem[];
+  onSelectCategory: any;
+}
+
+interface OrderTabProps {
+  data?: MenuItem[];
+}
+
+interface OrderTabsProps {
+  data?: MenuItem[];
+  onSelectCategory: any;
 }
 
 type RootStackParamList = {
@@ -12,8 +27,17 @@ type RootStackParamList = {
   };
 };
 
+type CategoryScreenParamList = {
+  CategoryScreen: {
+    categoryId: string;
+    categoryName: string;
+    categoryItems: MenuItem[];
+  };
+};
+
 interface CategoryRowProps {
   category: MenuItem;
+  onSelectCategory: any;
 }
 
 //types for square menu items

@@ -1,3 +1,4 @@
+import React from "react";
 import { StyleSheet } from "react-native";
 
 import OrderTab from "../../components/OrderTab";

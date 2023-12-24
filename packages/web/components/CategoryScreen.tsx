@@ -1,18 +1,6 @@
 import React from "react";
 import { StyleSheet, FlatList, Text, View, Image } from "react-native";
 
-// Props type for the CategoryScreen component
-interface CategoryScreenProps {
-  route: {
-    params: {
-      categoryId: string;
-      categoryName: string;
-      categoryItems: MenuItem[];
-    };
-  };
-}
-
-// Item component to render each item
 const ItemComponent: React.FC<{ item: MenuItem }> = ({ item }) => {
   return (
     <View style={styles.itemContainer}>
@@ -20,59 +8,57 @@ const ItemComponent: React.FC<{ item: MenuItem }> = ({ item }) => {
         <Image source={{ uri: item.imageUrl }} style={styles.itemImage} />
       )}
       <Text style={styles.itemName}>{item.itemData?.name}</Text>
-      {/* Add more item details here */}
     </View>
   );
 };
 
-// CategoryScreen component
-const CategoryScreen: React.FC<CategoryScreenProps> = ({ route }) => {
-  const { categoryName, categoryItems } = route.params;
+const CategoryScreen = ({ data, selectedCategory }) => {
+  const categoryObject = data.find(
+    (item) => item.categoryData?.name === selectedCategory
+  );
+
+  const categoryItems = categoryObject ? categoryObject.categoryItems : [];
 
   return (
     <View style={styles.container}>
-      <Text style={styles.categoryTitle}>{categoryName}</Text>
+      <Text style={styles.categoryTitle}>{selectedCategory}</Text>
       <FlatList
         data={categoryItems}
         renderItem={({ item }) => <ItemComponent item={item} />}
         keyExtractor={(item) => item.id}
+        horizontal={false}
       />
     </View>
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
-    backgroundColor: "#fff", // Adjust the background color as needed
-  },
-  categoryTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginVertical: 10,
-    textAlign: "center",
-  },
+  // ... other styles ...
   itemContainer: {
-    flexDirection: "row",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderColor: "#e0e0e0", // Adjust the border color as needed
+    // Style for the container of each item
     alignItems: "center",
+    justifyContent: "center",
+    margin: 10, // Adjust spacing as needed
   },
   itemImage: {
-    width: 60, // Adjust the width as needed
-    height: 60, // Adjust the height as needed
-    borderRadius: 30, // Adjust for rounded corners if desired
-    marginRight: 10,
+    width: 145,
+    height: 145,
+    borderRadius: 72.5, // Makes the image circular
   },
   itemName: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "bold",
-    flex: 1, // Ensure text takes up the remaining space
+    textAlign: "center",
+    marginTop: 5, // Add space between image and text
   },
-  // Add any other styles you need
+  container: {},
+  categoryTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 10,
+    marginLeft: 5,
+  },
+  // ... other styles ...
 });
 
 export default CategoryScreen;
