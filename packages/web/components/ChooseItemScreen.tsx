@@ -11,22 +11,10 @@ import { FontAwesome } from "@expo/vector-icons";
 
 const ChooseItemScreen = ({ route, navigation }) => {
   const { item, itemOptions } = route.params;
-  const [selectedSize, setSelectedSize] = useState("medium");
+  const [selectedSize, setSelectedSize] = useState("");
   const [selectedFlavor, setSelectedFlavor] = useState("");
   const [selectedVariation, setSelectedVariation] =
     useState<ItemVariation | null>(null);
-
-  const updateVariation = () => {
-    const matchedVariation = item.itemData.variations.find((variation) => {
-      const variationName = variation.itemVariationData.name.toLowerCase();
-      return (
-        (!selectedSize || variationName.includes(selectedSize.toLowerCase())) &&
-        (!selectedFlavor ||
-          variationName.includes(selectedFlavor.toLowerCase()))
-      );
-    });
-    setSelectedVariation(matchedVariation);
-  };
 
   useEffect(() => {
     updateVariation();
@@ -49,21 +37,49 @@ const ChooseItemScreen = ({ route, navigation }) => {
     return option?.values.find((value) => value.id === valueId)?.name;
   };
 
-  const initializeDefaults = () => {
-    if (item.itemData.variations.length === 1) {
-      setSelectedVariation(item.itemData.variations[0]);
-    } else {
-      const defaultSize = "medium";
-      const defaultFlavor =
-        item.itemData.variations[0].itemVariationData.name.split(",")[0];
-      setSelectedSize(defaultSize);
-      setSelectedFlavor(defaultFlavor);
-    }
+  const setDefaultVariation = () => {
+    const sizeOptions = extractOptions("size");
+    const flavorOptions = extractOptions("flavors");
+
+    const defaultSize = sizeOptions.length > 0 ? sizeOptions[0].name : null;
+    const defaultFlavor =
+      flavorOptions.length > 0 ? flavorOptions[0].name : null;
+
+    setSelectedSize(defaultSize);
+    setSelectedFlavor(defaultFlavor);
+  };
+
+  const extractOptions = (type) => {
+    return item.itemData.variations
+      .map((v) => v.itemVariationData.itemOptionValues)
+      .flat()
+      .filter((ov) => getOptionNameById(ov?.itemOptionId) === type)
+      .map((ov) => ({
+        ...ov,
+        name: getOptionValueNameById(ov?.itemOptionId, ov?.itemOptionValueId),
+      }))
+      .filter((v, i, a) => i === a.findIndex((t) => t.name === v.name));
+  };
+
+  const updateVariation = () => {
+    const matchedVariation = item.itemData.variations.find((variation) => {
+      const variationName = variation.itemVariationData.name.toLowerCase();
+      return (
+        (!selectedSize || variationName.includes(selectedSize.toLowerCase())) &&
+        (!selectedFlavor ||
+          variationName.includes(selectedFlavor.toLowerCase()))
+      );
+    });
+    setSelectedVariation(matchedVariation);
   };
 
   useEffect(() => {
-    initializeDefaults();
+    setDefaultVariation();
   }, [item]);
+
+  useEffect(() => {
+    updateVariation();
+  }, [selectedSize, selectedFlavor]);
 
   const renderSizeOptions = () => {
     if (!item.itemData.variations) return null;
@@ -98,10 +114,9 @@ const ChooseItemScreen = ({ route, navigation }) => {
               key={`${sizeOption.itemOptionId}-${sizeOption.itemOptionValueId}`}
               style={[
                 styles.sizeOption,
-                selectedSize === sizeOption.itemOptionValueId &&
-                  styles.sizeOptionSelected,
+                selectedSize === sizeOption.name && styles.sizeOptionSelected,
               ]}
-              onPress={() => handleSizeSelection(sizeOption.itemOptionValueId)}
+              onPress={() => handleSizeSelection(sizeOption.name)}
             >
               <Text>{sizeOption.name}</Text>
             </TouchableOpacity>
@@ -143,12 +158,10 @@ const ChooseItemScreen = ({ route, navigation }) => {
               key={`${flavorOption.itemOptionId}-${flavorOption.itemOptionValueId}`}
               style={[
                 styles.flavorOption,
-                selectedFlavor === flavorOption.itemOptionValueId &&
+                selectedFlavor === flavorOption.name &&
                   styles.flavorOptionSelected,
               ]}
-              onPress={() =>
-                handleFlavorSelection(flavorOption.itemOptionValueId)
-              }
+              onPress={() => handleFlavorSelection(flavorOption.name)}
             >
               <Text>{flavorOption.name}</Text>
             </TouchableOpacity>
