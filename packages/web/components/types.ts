@@ -153,6 +153,10 @@ interface ItemVariationData {
   itemOptionValues: ItemOptionValue[];
   sellable: boolean;
   stockable: boolean;
+  priceMoney: {
+    amount: string;
+    currency: string;
+  };
 }
 
 interface ItemOptionValue {

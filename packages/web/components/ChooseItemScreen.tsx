@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,8 +11,42 @@ import { FontAwesome } from "@expo/vector-icons";
 
 const ChooseItemScreen = ({ route, navigation }) => {
   const { item, itemOptions } = route.params;
-  const [selectedSize, setSelectedSize] = useState(null);
-  const [selectedOptions, setSelectedOptions] = useState({});
+  const [selectedSize, setSelectedSize] = useState("medium");
+  const [selectedFlavor, setSelectedFlavor] = useState("");
+  const [selectedVariation, setSelectedVariation] =
+    useState<ItemVariation | null>(null);
+
+  const updateVariation = () => {
+    const matchedVariation = item.itemData.variations.find((variation) => {
+      const variationName = variation.itemVariationData.name.toLowerCase();
+      return (
+        (!selectedSize || variationName.includes(selectedSize.toLowerCase())) &&
+        (!selectedFlavor ||
+          variationName.includes(selectedFlavor.toLowerCase()))
+      );
+    });
+    setSelectedVariation(matchedVariation);
+  };
+
+  useEffect(() => {
+    updateVariation();
+  }, [selectedSize, selectedFlavor]);
+
+  useEffect(() => {
+    const defaultSize = "medium";
+    const defaultFlavor =
+      item.itemData.variations[0].itemVariationData.name.split(",")[0];
+    setSelectedSize(defaultSize);
+    setSelectedFlavor(defaultFlavor);
+  }, [item]);
+
+  const handleSizeSelection = (size) => {
+    setSelectedSize(size);
+  };
+
+  const handleFlavorSelection = (flavor) => {
+    setSelectedFlavor(flavor);
+  };
 
   const getOptionNameById = (optionId) => {
     return itemOptions.find((option) => option.id === optionId)?.name;
@@ -59,7 +93,7 @@ const ChooseItemScreen = ({ route, navigation }) => {
                 selectedSize === sizeOption.itemOptionValueId &&
                   styles.sizeOptionSelected,
               ]}
-              onPress={() => setSelectedSize(sizeOption.itemOptionValueId)}
+              onPress={() => handleSizeSelection(sizeOption.itemOptionValueId)}
             >
               <Text>{sizeOption.name}</Text>
             </TouchableOpacity>
@@ -85,8 +119,7 @@ const ChooseItemScreen = ({ route, navigation }) => {
         ),
       }))
       .filter(
-        (item, index, self) =>
-          index === self.findIndex((t) => t.name === item.name)
+        (v, index, self) => index === self.findIndex((t) => t.name === v.name)
       );
 
     if (flavorOptions.length === 0) return null;
@@ -102,15 +135,11 @@ const ChooseItemScreen = ({ route, navigation }) => {
               key={`${flavorOption.itemOptionId}-${flavorOption.itemOptionValueId}`}
               style={[
                 styles.flavorOption,
-                selectedOptions[flavorOption.itemOptionValueId] &&
+                selectedFlavor === flavorOption.itemOptionValueId &&
                   styles.flavorOptionSelected,
               ]}
               onPress={() =>
-                setSelectedOptions({
-                  ...selectedOptions,
-                  [flavorOption.itemOptionValueId]:
-                    !selectedOptions[flavorOption.itemOptionValueId],
-                })
+                handleFlavorSelection(flavorOption.itemOptionValueId)
               }
             >
               <Text>{flavorOption.name}</Text>
@@ -141,10 +170,8 @@ const ChooseItemScreen = ({ route, navigation }) => {
         <Image source={{ uri: item.imageUrl }} style={styles.itemImage} />
       </View>
 
-      {/* Item Name */}
       <Text style={styles.itemName}>{item.itemData?.name}</Text>
 
-      {/* Item Description */}
       <Text style={styles.description}>
         {item.itemData?.descriptionPlaintext}
       </Text>
@@ -152,6 +179,13 @@ const ChooseItemScreen = ({ route, navigation }) => {
       {renderSizeOptions()}
 
       {renderFlavorOptions()}
+
+      {selectedVariation && (
+        <Text style={styles.priceText}>
+          Price: $
+          {Number(selectedVariation.itemVariationData.priceMoney.amount) / 100}
+        </Text>
+      )}
 
       <TouchableOpacity style={styles.addToOrderButton}>
         <Text style={styles.addToOrderText}>Add to order</Text>
@@ -298,6 +332,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginVertical: 10,
+  },
+  priceText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 10,
   },
 });
 
