@@ -9,11 +9,21 @@ import {
   Image,
 } from "react-native";
 
-const CategoryRow: React.FC<
-  CategoryRowProps & { onSelectCategory: (categoryName: string) => void }
-> = ({ category, onSelectCategory }) => {
+const CategoryRow = ({
+  category,
+  onSelectCategory,
+  navigation,
+  itemOptions,
+}) => {
   const viewAll = () => {
     onSelectCategory(category.categoryData?.name);
+  };
+
+  const selectItem = (selectedItem) => {
+    navigation.navigate("ChooseItemScreen", {
+      item: selectedItem,
+      itemOptions,
+    });
   };
 
   const categoryItems = category.categoryItems?.filter((item) => item.featured);
@@ -30,23 +40,24 @@ const CategoryRow: React.FC<
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {categoryItems?.map((item) => (
-          <View style={styles.itemContainer} key={item.id}>
+          <TouchableOpacity
+            style={styles.itemContainer}
+            key={item.id}
+            onPress={() => selectItem(item)}
+          >
             {item.imageUrl && (
               <Image source={{ uri: item.imageUrl }} style={styles.itemImage} />
             )}
             <Text style={styles.itemName}>{item.itemData?.name}</Text>
-          </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </View>
   );
 };
 
-const FeaturedScreen: React.FC<FeaturedScreenProps> = ({
-  data,
-  onSelectCategory,
-}) => {
-  const categories = data?.filter(
+const FeaturedScreen = ({ data, onSelectCategory, navigation }) => {
+  const categories = data.data?.filter(
     (item) => item.parentType && item.parentType === "Featured"
   );
 
@@ -55,7 +66,12 @@ const FeaturedScreen: React.FC<FeaturedScreenProps> = ({
       <FlatList
         data={categories}
         renderItem={({ item }) => (
-          <CategoryRow category={item} onSelectCategory={onSelectCategory} />
+          <CategoryRow
+            category={item}
+            onSelectCategory={onSelectCategory}
+            navigation={navigation}
+            itemOptions={data.itemOptions}
+          />
         )}
         keyExtractor={(item) => item.id}
       />

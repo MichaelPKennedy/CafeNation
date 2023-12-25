@@ -20,8 +20,9 @@ const OrderTabs: React.FC<OrderTabProps> = ({ data, navigation }) => {
       <OrderTabNavigator.Screen name="Featured">
         {() => (
           <FeaturedScreen
-            data={menuData?.data || []}
+            data={menuData || []}
             onSelectCategory={handleSelectCategory}
+            navigation={navigation}
           />
         )}
       </OrderTabNavigator.Screen>
