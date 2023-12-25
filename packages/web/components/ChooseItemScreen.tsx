@@ -32,14 +32,6 @@ const ChooseItemScreen = ({ route, navigation }) => {
     updateVariation();
   }, [selectedSize, selectedFlavor]);
 
-  useEffect(() => {
-    const defaultSize = "medium";
-    const defaultFlavor =
-      item.itemData.variations[0].itemVariationData.name.split(",")[0];
-    setSelectedSize(defaultSize);
-    setSelectedFlavor(defaultFlavor);
-  }, [item]);
-
   const handleSizeSelection = (size) => {
     setSelectedSize(size);
   };
@@ -56,6 +48,22 @@ const ChooseItemScreen = ({ route, navigation }) => {
     const option = itemOptions.find((option) => option.id === optionId);
     return option?.values.find((value) => value.id === valueId)?.name;
   };
+
+  const initializeDefaults = () => {
+    if (item.itemData.variations.length === 1) {
+      setSelectedVariation(item.itemData.variations[0]);
+    } else {
+      const defaultSize = "medium";
+      const defaultFlavor =
+        item.itemData.variations[0].itemVariationData.name.split(",")[0];
+      setSelectedSize(defaultSize);
+      setSelectedFlavor(defaultFlavor);
+    }
+  };
+
+  useEffect(() => {
+    initializeDefaults();
+  }, [item]);
 
   const renderSizeOptions = () => {
     if (!item.itemData.variations) return null;
@@ -337,7 +345,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 10,
+    margin: 10,
   },
 });
 
