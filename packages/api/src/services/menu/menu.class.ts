@@ -46,11 +46,19 @@ export class MenuService implements ServiceMethods<any> {
     return processedResponse
   }
 
-  async find(params: Params): Promise<any[]> {
+  async find(params: Params): Promise<MenuItems> {
     const cacheKey = 'catalog'
-    let catalogData: any[] = myCache.get(cacheKey) || []
+    let catalogData: MenuItems = {
+      data: [],
+      itemOptions: []
+    }
+    let cacheData = myCache.get(cacheKey) as MenuItems
+    let itemOptions = []
 
-    if (catalogData.length > 0) {
+    if (cacheData) {
+      catalogData = cacheData
+    }
+    if (catalogData.data.length > 0) {
       return catalogData
     } else {
       try {
@@ -60,14 +68,14 @@ export class MenuService implements ServiceMethods<any> {
         })
 
         const response = await client.catalogApi.listCatalog()
-        catalogData = this.processApiResponse(response.result.objects)
+        catalogData.data = this.processApiResponse(response.result.objects)
 
         //TODO: turn the following logic into one or more feathers hooks
-        const categories = catalogData?.filter((item) => item.categoryData)
+        const categories = catalogData?.data.filter((item) => item.categoryData)
         if (categories) {
           for (const category of categories) {
             category.categoryItems = []
-            for (const item of catalogData) {
+            for (const item of catalogData.data) {
               if (item.itemData && item.itemData.categories.some((cat: category) => cat.id === category.id)) {
                 category.categoryItems.push(item)
               }
@@ -75,8 +83,8 @@ export class MenuService implements ServiceMethods<any> {
           }
         }
         //set parent type for categories
-        for (const item of catalogData) {
-          if (item.type === 'CATEGORY') {
+        for (const item of catalogData.data) {
+          if (item.type === 'CATEGORY' && item.categoryData) {
             const splitName = item.categoryData.name.split('-', 2)
             if (splitName.length === 2) {
               item.parentType = _.startCase(_.toLower(splitName[0]))
@@ -106,19 +114,33 @@ export class MenuService implements ServiceMethods<any> {
               console.error('Error fetching image data:', error)
             }
           }
+          if (item.type === 'ITEM_OPTION' && item.itemOptionData) {
+            const optionValues = item.itemOptionData.values.map((val) => ({
+              id: val.id,
+              name: val.itemOptionValueData.name
+            }))
+
+            itemOptions.push({
+              id: item.id,
+              name: item.itemOptionData.name,
+              values: optionValues
+            })
+          }
         }
 
+        catalogData.itemOptions = itemOptions
+
         //add items to secondary categories
-        for (const item of catalogData) {
+        for (const item of catalogData.data) {
           if (item.customAttributeValues) {
             for (const key in item.customAttributeValues) {
               const attribute = item.customAttributeValues[key]
               if (attribute.name === 'Secondary Category') {
-                const secondaryCategory = catalogData.find(
+                const secondaryCategory = catalogData.data.find(
                   (category) => category?.categoryData?.name === attribute.stringValue
                 )
                 if (secondaryCategory) {
-                  secondaryCategory.categoryItems.push(item)
+                  secondaryCategory?.categoryItems?.push(item)
                 }
               }
             }

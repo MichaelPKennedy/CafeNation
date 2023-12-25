@@ -1,5 +1,15 @@
 import React from "react";
-import { StyleSheet, FlatList, Text, View, Image } from "react-native";
+import {
+  StyleSheet,
+  FlatList,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useMenuData } from "./MenuDataContext";
+import { FontAwesome } from "@expo/vector-icons";
 
 const ItemComponent: React.FC<{ item: MenuItem }> = ({ item }) => {
   return (
@@ -12,53 +22,120 @@ const ItemComponent: React.FC<{ item: MenuItem }> = ({ item }) => {
   );
 };
 
-const CategoryScreen = ({ data, selectedCategory }) => {
-  const categoryObject = data.find(
-    (item) => item.categoryData?.name === selectedCategory
-  );
+const CategoryScreen = ({ route, navigation }) => {
+  const menuData = useMenuData();
+  const { selectedCategory } = useNavigation().getState().routes[1].params;
 
-  const categoryItems = categoryObject ? categoryObject.categoryItems : [];
+  const handleBackPress = () => {
+    navigation.goBack();
+  };
+
+  const categoryData = menuData.data?.find((item) => {
+    return (
+      item.type === "CATEGORY" && item.categoryData?.name === selectedCategory
+    );
+  });
+  const data = categoryData?.categoryItems || [];
+
+  const renderItem = ({ item, index }) => {
+    //check if the last item should be styled differently
+    const isLastItem = data.length % 2 !== 0 && index === data.length - 1;
+
+    const selectItem = (selectedItem) => {
+      navigation.navigate("ChooseItemScreen", {
+        item: selectedItem,
+        itemOptions: menuData.itemOptions,
+      });
+    };
+
+    return (
+      <TouchableOpacity
+        style={[styles.itemContainer, isLastItem && styles.lastItemAlone]}
+        onPress={() => selectItem(item)}
+      >
+        <ItemComponent item={item} />
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.categoryTitle}>{selectedCategory}</Text>
+      <View style={styles.headerContainer}>
+        <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
+          <FontAwesome
+            name="angle-left"
+            size={24}
+            color="black"
+            style={styles.backIcon}
+          />
+        </TouchableOpacity>
+        <Text style={styles.categoryTitle}>{selectedCategory}</Text>
+      </View>
       <FlatList
-        data={categoryItems}
-        renderItem={({ item }) => <ItemComponent item={item} />}
+        data={data}
+        renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        horizontal={false}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
       />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  // ... other styles ...
-  itemContainer: {
-    // Style for the container of each item
+  headerContainer: {
+    borderBottomWidth: 0.5,
+    marginBottom: 10,
+  },
+  container: {},
+  categoryTitle: {
+    fontSize: 27,
+    fontWeight: "bold",
+    marginBottom: 10,
+    marginLeft: 20,
+  },
+  backButton: {
+    marginTop: 10,
+    marginBottom: 10,
+    marginLeft: 20,
+    padding: 10,
+    borderRadius: 20,
+    width: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
-    margin: 10, // Adjust spacing as needed
+    backgroundColor: "#ddd",
+  },
+  backIcon: {
+    marginTop: -2.5,
+  },
+
+  lastItemAlone: {
+    marginRight: "50%",
+  },
+  itemContainer: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 5,
   },
   itemImage: {
-    width: 145,
-    height: 145,
-    borderRadius: 72.5, // Makes the image circular
+    width: "100%",
+    aspectRatio: 1,
+    borderRadius: 1000,
   },
   itemName: {
     fontSize: 14,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 5, // Add space between image and text
+    marginTop: 8,
   },
-  container: {},
-  categoryTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 10,
-    marginLeft: 5,
+  row: {
+    flex: 1,
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
   },
-  // ... other styles ...
 });
 
 export default CategoryScreen;

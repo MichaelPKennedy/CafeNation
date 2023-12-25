@@ -4,6 +4,10 @@ interface FeaturedScreenProps {
   onSelectCategory: any;
 }
 
+interface ChooseItemRouteProps {
+  item: MenuItem;
+}
+
 interface MenuScreenProps {
   data: MenuItem[];
   onSelectCategory: any;
@@ -11,6 +15,7 @@ interface MenuScreenProps {
 
 interface OrderTabProps {
   data?: MenuItem[];
+  navigation: any;
 }
 
 interface OrderTabsProps {
@@ -57,6 +62,12 @@ interface MenuItem {
   categoryImage?: boolean;
   featured?: boolean;
   customAttributeValues?: object;
+  itemOptions?: any;
+}
+
+interface MenuData {
+  data: MenuItem[];
+  itemOptions: any[];
 }
 
 interface CategoryData {

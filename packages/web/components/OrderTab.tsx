@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet } from "react-native";
-import OrderTabs from "./OrderTabs";
-import CategoryScreen from "./CategoryScreen";
+import OrderStackNavigator from "./OrderStackNavigator";
 import feathersClient from "../feathersClient";
+import { MenuDataProvider } from "./MenuDataContext";
 
 const OrderTab = () => {
-  const [menuData, setMenuData] = useState<MenuItem[]>([]);
-  const [showCategory, setShowCategory] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [menuData, setMenuData] = useState<MenuData>();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     feathersClient
       .service("menu")
       .find()
-      .then((response: MenuItem[]) => {
+      .then((response: MenuData) => {
         setMenuData(response);
       })
       .catch((error: Error) => {
@@ -25,26 +23,12 @@ const OrderTab = () => {
       });
   }, []);
 
-  useEffect(() => {
-    if (selectedCategory) {
-      setShowCategory(true);
-    } else {
-      setShowCategory(false);
-    }
-  }, [selectedCategory]);
-
-  const handleSelectCategory = (category: string) => {
-    setSelectedCategory(category);
-  };
-
   return (
-    <View style={styles.container}>
-      {!showCategory ? (
-        <OrderTabs data={menuData} onSelectCategory={handleSelectCategory} />
-      ) : (
-        <CategoryScreen data={menuData} selectedCategory={selectedCategory} />
-      )}
-    </View>
+    <MenuDataProvider menuData={menuData}>
+      <View style={styles.container}>
+        <OrderStackNavigator />
+      </View>
+    </MenuDataProvider>
   );
 };
 
@@ -52,7 +36,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  // Add any other styles you need
 });
 
 export default OrderTab;

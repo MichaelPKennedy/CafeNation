@@ -8,21 +8,15 @@ import {
   ScrollView,
   Image,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
 
-const CategoryRow: React.FC<CategoryRowProps> = ({ category }) => {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+const CategoryRow: React.FC<
+  CategoryRowProps & { onSelectCategory: (categoryName: string) => void }
+> = ({ category, onSelectCategory }) => {
+  const viewAll = () => {
+    onSelectCategory(category.categoryData?.name);
+  };
 
   const categoryItems = category.categoryItems?.filter((item) => item.featured);
-
-  const viewAll = () => {
-    navigation.navigate("CategoryScreen", {
-      categoryId: category.id,
-      categoryName: category?.categoryData?.name,
-      categoryItems,
-    });
-  };
 
   return (
     <View style={styles.categoryContainer}>
@@ -48,7 +42,10 @@ const CategoryRow: React.FC<CategoryRowProps> = ({ category }) => {
   );
 };
 
-const FeaturedScreen: React.FC<FeaturedScreenProps> = ({ data }) => {
+const FeaturedScreen: React.FC<FeaturedScreenProps> = ({
+  data,
+  onSelectCategory,
+}) => {
   const categories = data?.filter(
     (item) => item.parentType && item.parentType === "Featured"
   );
@@ -57,7 +54,9 @@ const FeaturedScreen: React.FC<FeaturedScreenProps> = ({ data }) => {
     categories && (
       <FlatList
         data={categories}
-        renderItem={({ item }) => <CategoryRow category={item} />}
+        renderItem={({ item }) => (
+          <CategoryRow category={item} onSelectCategory={onSelectCategory} />
+        )}
         keyExtractor={(item) => item.id}
       />
     )
@@ -66,7 +65,6 @@ const FeaturedScreen: React.FC<FeaturedScreenProps> = ({ data }) => {
 
 const styles = StyleSheet.create({
   categoryContainer: {
-    //add top border
     borderBottomWidth: 0.5,
     paddingTop: 20,
     paddingBottom: 10,
