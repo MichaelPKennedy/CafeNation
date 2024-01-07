@@ -19,7 +19,7 @@ const ChooseItemScreen = ({ route, navigation }) => {
     useState<ItemVariation | null>(null);
 
   const { user, signIn, signOut } = useContext(UserContext);
-  const { addToCart } = useContext(CartContext);
+  const { addToCart, cartItems } = useContext(CartContext);
 
   useEffect(() => {
     updateVariation();
