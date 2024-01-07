@@ -33,6 +33,7 @@ const ChooseItemScreen = ({ route, navigation }) => {
         price: selectedVariation.itemVariationData.priceMoney.amount,
         size: selectedSize,
         flavor: selectedFlavor,
+        imageUrl: item.imageUrl,
       };
 
       if (user) {

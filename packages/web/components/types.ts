@@ -170,3 +170,12 @@ interface ItemOptionValue {
 interface TransformedItemOptionValue extends ItemOptionValue {
   name: string;
 }
+
+type CartItemType = {
+  id: string;
+  name: string;
+  size?: string;
+  flavor?: string;
+  imageUrl?: string;
+  price: string;
+};

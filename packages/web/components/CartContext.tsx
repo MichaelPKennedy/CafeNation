@@ -1,14 +1,5 @@
 import React, { createContext, useState, ReactNode, useEffect } from "react";
 
-// Define the type for cart items
-type CartItemType = {
-  id: string;
-  name: string;
-  size?: string;
-  flavor?: string;
-  // Add other properties as needed
-};
-
 // Define the type for the context
 type CartContextType = {
   cartItems: CartItemType[];
@@ -39,6 +30,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       currentItems.filter((item) => item.id !== itemId)
     );
   };
+
+  useEffect(() => {
+    console.log("Cart Items from context", cartItems);
+  }, [cartItems]);
 
   return (
     <CartContext.Provider value={{ cartItems, addToCart, removeFromCart }}>
