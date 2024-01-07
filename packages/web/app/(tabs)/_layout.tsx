@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Link, Tabs } from "expo-router";
-import { Pressable, useColorScheme, Modal } from "react-native";
+import { Pressable, useColorScheme, Modal, View } from "react-native";
 import { CartProvider } from "../../components/CartContext";
 import CartIcon from "../../components/CartIcon";
 import CartModal from "../../components/CartModal";
@@ -36,7 +36,11 @@ export default function TabLayout() {
           options={{
             title: "Order",
             tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-            headerRight: () => <CartIcon onPress={toggleModal} />,
+            headerRight: () => (
+              <View style={{ marginRight: 15 }}>
+                <CartIcon onPress={toggleModal} />
+              </View>
+            ),
           }}
         />
         <Tabs.Screen

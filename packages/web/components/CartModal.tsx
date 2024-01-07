@@ -50,7 +50,7 @@ const CartModal = ({ isVisible, onClose }) => {
                   <TouchableOpacity onPress={() => decrementQuantity(item.id)}>
                     <Text style={styles.quantityButton}>-</Text>
                   </TouchableOpacity>
-                  <Text style={styles.quantity}>1</Text>{" "}
+                  <Text style={styles.quantity}>1</Text>
                   <TouchableOpacity onPress={() => incrementQuantity(item.id)}>
                     <Text style={styles.quantityButton}>+</Text>
                   </TouchableOpacity>
