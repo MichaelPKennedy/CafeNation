@@ -82,7 +82,7 @@ const ChooseItemScreen = ({ route, navigation }) => {
       (option: ItemOptionData) => option.id === optionId
     );
     return option?.values.find((value: ItemOptionValue) => value.id === valueId)
-      ?.itemOptionValueData.name;
+      ?.name;
   };
 
   const setDefaultVariation = () => {
