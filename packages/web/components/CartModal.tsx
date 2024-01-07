@@ -13,14 +13,21 @@ import { CartContext } from "./CartContext";
 import { FontAwesome } from "@expo/vector-icons";
 
 const CartModal = ({ isVisible, onClose }) => {
-  const { cartItems } = useContext(CartContext);
+  const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
 
-  const incrementQuantity = (id) => {
-    // Implement logic to increase item quantity
+  const totalAmount = cartItems.reduce((sum, item) => {
+    return sum + (parseFloat(item.price) / 100) * item.quantity;
+  }, 0);
+
+  const incrementQuantity = (id: string) => {
+    const item = cartItems.find((item) => item.id === id);
+    if (item) {
+      addToCart(item);
+    }
   };
 
-  const decrementQuantity = (id) => {
-    // Implement logic to decrease item quantity
+  const decrementQuantity = (id: string) => {
+    removeFromCart(id);
   };
 
   useEffect(() => {
@@ -59,7 +66,7 @@ const CartModal = ({ isVisible, onClose }) => {
                   <TouchableOpacity onPress={() => decrementQuantity(item.id)}>
                     <Text style={styles.quantityButton}>-</Text>
                   </TouchableOpacity>
-                  <Text style={styles.quantity}>1</Text>
+                  <Text style={styles.quantity}>{item.quantity}</Text>
                   <TouchableOpacity onPress={() => incrementQuantity(item.id)}>
                     <Text style={styles.quantityButton}>+</Text>
                   </TouchableOpacity>
@@ -68,6 +75,9 @@ const CartModal = ({ isVisible, onClose }) => {
             </View>
           )}
         />
+        <View style={styles.totalContainer}>
+          <Text style={styles.totalText}>Total: ${totalAmount.toFixed(2)}</Text>
+        </View>
         <Button title="Continue" onPress={onClose} color="#56C568" />
       </View>
     </Modal>
@@ -130,6 +140,14 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     marginTop: -2.5,
+  },
+  totalContainer: {
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  totalText: {
+    fontSize: 20,
+    fontWeight: "bold",
   },
 });
 

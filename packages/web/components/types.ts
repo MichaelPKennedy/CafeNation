@@ -178,4 +178,5 @@ type CartItemType = {
   flavor?: string;
   imageUrl?: string;
   price: string;
+  quantity: number;
 };

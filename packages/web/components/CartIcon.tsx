@@ -5,12 +5,12 @@ import { CartContext } from "./CartContext";
 
 const CartIcon = ({ onPress }: { onPress: () => void }) => {
   const { cartItems } = useContext(CartContext);
-  const itemCount = cartItems.length;
+  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <Pressable onPress={onPress}>
       <FontAwesome name="shopping-cart" size={25} color="black" />
-      {itemCount > 0 && (
+      {totalQuantity > 0 && (
         <View
           style={{
             position: "absolute",
@@ -24,7 +24,7 @@ const CartIcon = ({ onPress }: { onPress: () => void }) => {
             alignItems: "center",
           }}
         >
-          <Text style={{ color: "white", fontSize: 12 }}>{itemCount}</Text>
+          <Text style={{ color: "white", fontSize: 12 }}>{totalQuantity}</Text>
         </View>
       )}
     </Pressable>
