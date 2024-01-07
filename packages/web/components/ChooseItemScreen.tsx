@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   ScrollView,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
+import { CartContext } from "./CartContext";
+import { UserContext } from "./UserContext";
 
 const ChooseItemScreen = ({ route, navigation }) => {
   const { item, itemOptions } = route.params;
@@ -16,25 +18,71 @@ const ChooseItemScreen = ({ route, navigation }) => {
   const [selectedVariation, setSelectedVariation] =
     useState<ItemVariation | null>(null);
 
+  const { user, signIn, signOut } = useContext(UserContext);
+  const { addToCart } = useContext(CartContext);
+
   useEffect(() => {
     updateVariation();
   }, [selectedSize, selectedFlavor]);
 
-  const handleSizeSelection = (size) => {
+  const handleAddToOrder = async () => {
+    if (selectedVariation) {
+      const itemToAdd = {
+        id: selectedVariation.id,
+        name: item.itemData.name,
+        price: selectedVariation.itemVariationData.priceMoney.amount,
+        size: selectedSize,
+        flavor: selectedFlavor,
+      };
+
+      if (user) {
+        try {
+          await addCartItemToDatabase(itemToAdd);
+          addToCart(itemToAdd);
+        } catch (error) {
+          console.error("Error updating cart in database", error);
+        }
+      } else {
+        addToCart(itemToAdd);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      try {
+        if (!user) {
+          return;
+        }
+        const fetchedItems = await getCartItemsFromDatabase();
+        setCartItems(fetchedItems);
+      } catch (error) {
+        console.error("Error fetching cart items", error);
+      }
+    };
+
+    fetchCartItems();
+  }, []);
+
+  const handleSizeSelection = (size: string) => {
     setSelectedSize(size);
   };
 
-  const handleFlavorSelection = (flavor) => {
+  const handleFlavorSelection = (flavor: string) => {
     setSelectedFlavor(flavor);
   };
 
-  const getOptionNameById = (optionId) => {
-    return itemOptions.find((option) => option.id === optionId)?.name;
+  const getOptionNameById = (optionId: string) => {
+    return itemOptions.find((option: ItemOptionData) => option.id === optionId)
+      ?.name;
   };
 
-  const getOptionValueNameById = (optionId, valueId) => {
-    const option = itemOptions.find((option) => option.id === optionId);
-    return option?.values.find((value) => value.id === valueId)?.name;
+  const getOptionValueNameById = (optionId: string, valueId: string) => {
+    const option = itemOptions.find(
+      (option: ItemOptionData) => option.id === optionId
+    );
+    return option?.values.find((value: ItemOptionValue) => value.id === valueId)
+      ?.itemOptionValueData.name;
   };
 
   const setDefaultVariation = () => {
@@ -49,28 +97,40 @@ const ChooseItemScreen = ({ route, navigation }) => {
     setSelectedFlavor(defaultFlavor);
   };
 
-  const extractOptions = (type) => {
+  const extractOptions = (type: string) => {
     return item.itemData.variations
-      .map((v) => v.itemVariationData.itemOptionValues)
+      .map((v: ItemVariation) => v.itemVariationData.itemOptionValues)
       .flat()
-      .filter((ov) => getOptionNameById(ov?.itemOptionId) === type)
-      .map((ov) => ({
+      .filter(
+        (ov: ItemOptionValue) => getOptionNameById(ov?.itemOptionId) === type
+      )
+      .map((ov: ItemOptionValue) => ({
         ...ov,
         name: getOptionValueNameById(ov?.itemOptionId, ov?.itemOptionValueId),
       }))
-      .filter((v, i, a) => i === a.findIndex((t) => t.name === v.name));
+      .filter(
+        (
+          v: { itemOptionId: string; itemOptionValueId: string; name: string },
+          i: number,
+          a: { itemOptionId: string; itemOptionValueId: string; name: string }[]
+        ) => i === a.findIndex((t) => t.name === v.name)
+      );
   };
 
   const updateVariation = () => {
-    const matchedVariation = item.itemData.variations.find((variation) => {
-      const variationName = variation.itemVariationData.name.toLowerCase();
-      return (
-        (!selectedSize || variationName.includes(selectedSize.toLowerCase())) &&
-        (!selectedFlavor ||
-          variationName.includes(selectedFlavor.toLowerCase()))
-      );
-    });
+    const matchedVariation = item.itemData.variations.find(
+      (variation: ItemVariation) => {
+        const variationName = variation.itemVariationData.name.toLowerCase();
+        return (
+          (!selectedSize ||
+            variationName.includes(selectedSize.toLowerCase())) &&
+          (!selectedFlavor ||
+            variationName.includes(selectedFlavor.toLowerCase()))
+        );
+      }
+    );
     setSelectedVariation(matchedVariation);
+    console.log("matchedVariation", matchedVariation);
   };
 
   useEffect(() => {
@@ -84,12 +144,16 @@ const ChooseItemScreen = ({ route, navigation }) => {
   const renderSizeOptions = () => {
     if (!item.itemData.variations) return null;
     const sizeOptions = item.itemData.variations
-      .map((variation) => variation.itemVariationData.itemOptionValues)
+      .map(
+        (variation: ItemVariation) =>
+          variation.itemVariationData.itemOptionValues
+      )
       .flat()
       .filter(
-        (optionValue) => getOptionNameById(optionValue?.itemOptionId) === "size"
+        (optionValue: ItemOptionValue) =>
+          getOptionNameById(optionValue?.itemOptionId) === "size"
       )
-      .map((optionValue) => ({
+      .map((optionValue: ItemOptionValue) => ({
         ...optionValue,
         name: getOptionValueNameById(
           optionValue?.itemOptionId,
@@ -97,8 +161,11 @@ const ChooseItemScreen = ({ route, navigation }) => {
         ),
       }))
       .filter(
-        (item, index, self) =>
-          index === self.findIndex((t) => t.name === item.name)
+        (
+          v: TransformedItemOptionValue,
+          i: number,
+          a: TransformedItemOptionValue[]
+        ) => i === a.findIndex((t) => t.name === v.name)
       );
 
     if (sizeOptions.length === 0) return null;
@@ -109,7 +176,7 @@ const ChooseItemScreen = ({ route, navigation }) => {
           <Text style={styles.sizeOptionsText}>Size Options</Text>
         </View>
         <View style={styles.sizeOptionsContainer}>
-          {sizeOptions.map((sizeOption) => (
+          {sizeOptions.map((sizeOption: TransformedItemOptionValue) => (
             <TouchableOpacity
               key={`${sizeOption.itemOptionId}-${sizeOption.itemOptionValueId}`}
               style={[
@@ -128,13 +195,16 @@ const ChooseItemScreen = ({ route, navigation }) => {
 
   const renderFlavorOptions = () => {
     const flavorOptions = item.itemData.variations
-      .map((variation) => variation.itemVariationData.itemOptionValues)
+      .map(
+        (variation: ItemVariation) =>
+          variation.itemVariationData.itemOptionValues
+      )
       .flat()
       .filter(
-        (optionValue) =>
+        (optionValue: ItemOptionValue) =>
           getOptionNameById(optionValue?.itemOptionId) === "flavors"
       )
-      .map((optionValue) => ({
+      .map((optionValue: ItemOptionValue) => ({
         ...optionValue,
         name: getOptionValueNameById(
           optionValue?.itemOptionId,
@@ -142,7 +212,11 @@ const ChooseItemScreen = ({ route, navigation }) => {
         ),
       }))
       .filter(
-        (v, index, self) => index === self.findIndex((t) => t.name === v.name)
+        (
+          v: TransformedItemOptionValue,
+          i: number,
+          a: TransformedItemOptionValue[]
+        ) => i === a.findIndex((t) => t.name === v.name)
       );
 
     if (flavorOptions.length === 0) return null;
@@ -153,7 +227,7 @@ const ChooseItemScreen = ({ route, navigation }) => {
           <Text style={styles.flavorOptionsText}>Flavor Options</Text>
         </View>
         <View style={styles.flavorOptionsContainer}>
-          {flavorOptions.map((flavorOption) => (
+          {flavorOptions.map((flavorOption: TransformedItemOptionValue) => (
             <TouchableOpacity
               key={`${flavorOption.itemOptionId}-${flavorOption.itemOptionValueId}`}
               style={[
@@ -208,7 +282,10 @@ const ChooseItemScreen = ({ route, navigation }) => {
         </Text>
       )}
 
-      <TouchableOpacity style={styles.addToOrderButton}>
+      <TouchableOpacity
+        style={styles.addToOrderButton}
+        onPress={handleAddToOrder}
+      >
         <Text style={styles.addToOrderText}>Add to order</Text>
       </TouchableOpacity>
     </ScrollView>

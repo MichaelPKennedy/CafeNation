@@ -82,6 +82,7 @@ interface CategoryData {
 
 interface ItemOptionData {
   name: string;
+  id: string;
   displayName: string;
   showColors: boolean;
   values: ItemOptionValue[];
@@ -91,11 +92,13 @@ interface ItemOptionValue {
   type: string;
   id: string;
   version: string;
-  itemOptionValueData: {
-    itemOptionId: string;
-    name: string;
-    ordinal: number;
-  };
+  itemOptionValueData: ItemOptionValueData;
+}
+
+interface ItemOptionValueData {
+  itemOptionId: string;
+  name: string;
+  ordinal: number;
 }
 
 interface ItemData {
@@ -162,4 +165,8 @@ interface ItemVariationData {
 interface ItemOptionValue {
   itemOptionId: string;
   itemOptionValueId: string;
+}
+
+interface TransformedItemOptionValue extends ItemOptionValue {
+  name: string;
 }

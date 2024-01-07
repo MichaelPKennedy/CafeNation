@@ -66,7 +66,7 @@ interface MenuItem {
 
 interface MenuItems {
   data: MenuItem[]
-  itemOptions: any[]
+  itemOptions: ItemOption[]
 }
 
 interface ItemOption {

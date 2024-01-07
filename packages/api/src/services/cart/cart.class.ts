@@ -41,14 +41,7 @@ export class CartService implements ServiceMethods<any> {
   }
 
   async get(cart_id: Id, params?: Params): Promise<CartItem> {
-    const cartItem = await this.sequelize.models.Cart.findByPk(cart_id, {
-      include: [
-        {
-          model: this.sequelize.models.OrderItemDetails,
-          required: false
-        }
-      ]
-    })
+    const cartItem = await this.sequelize.models.Cart.findByPk(cart_id, {})
     return cartItem
   }
 
@@ -75,14 +68,6 @@ export class CartService implements ServiceMethods<any> {
       where: { cart_id }
     })
 
-    if (orderDetails && orderDetails.length) {
-      for (const detail of orderDetails) {
-        await this.sequelize.models.OrderItemDetails.update(detail, {
-          where: { cart_id: cart_id, ...detail.identifyingFields }
-        })
-      }
-    }
-
     return this.get(cart_id, params)
   }
 
@@ -93,23 +78,11 @@ export class CartService implements ServiceMethods<any> {
       where: { cart_id }
     })
 
-    if (orderDetails && orderDetails.length) {
-      for (const detail of orderDetails) {
-        await this.sequelize.models.OrderItemDetails.update(detail, {
-          where: { cart_id: cart_id, ...detail.identifyingFields }
-        })
-      }
-    }
-
     return this.get(cart_id, params)
   }
 
   async remove(cart_id: Id, params?: Params): Promise<CartItem> {
     const cartItem = await this.get(cart_id, params)
-
-    await this.sequelize.models.OrderItemDetails.destroy({
-      where: { cart_id }
-    })
 
     await this.sequelize.models.Cart.destroy({
       where: { cart_id }
