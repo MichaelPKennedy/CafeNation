@@ -9,7 +9,8 @@ import {
   Button,
   Image,
 } from "react-native";
-import { CartContext } from "./CartContext"; // Assuming CartContext is in the same directory
+import { CartContext } from "./CartContext";
+import { FontAwesome } from "@expo/vector-icons";
 
 const CartModal = ({ isVisible, onClose }) => {
   const { cartItems } = useContext(CartContext);
@@ -34,6 +35,14 @@ const CartModal = ({ isVisible, onClose }) => {
       onRequestClose={onClose}
     >
       <View style={styles.modalView}>
+        <TouchableOpacity onPress={onClose} style={styles.backButton}>
+          <FontAwesome
+            name="angle-left"
+            size={24}
+            color="black"
+            style={styles.backIcon}
+          />
+        </TouchableOpacity>
         <Text style={styles.modalTitle}>Review order ({cartItems.length})</Text>
         <FlatList
           data={cartItems}
@@ -106,6 +115,21 @@ const styles = StyleSheet.create({
   quantity: {
     fontSize: 16,
     marginHorizontal: 10,
+  },
+  backButton: {
+    marginTop: 10,
+    marginBottom: 10,
+    marginLeft: 20,
+    padding: 10,
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#ddd",
+  },
+  backIcon: {
+    marginTop: -2.5,
   },
 });
 
