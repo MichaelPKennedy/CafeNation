@@ -86,22 +86,24 @@ const FeaturedScreen: React.FC<FeaturedScreenProps> = ({
   onSelectCategory,
 }) => {
   const categories =
-    data.data?.filter(
+    data?.data?.filter(
       (item): item is MenuItem => item.parentType === "Featured"
     ) ?? [];
 
   return (
-    <FlatList
-      data={categories}
-      renderItem={({ item }) => (
-        <CategoryRow
-          category={item}
-          onSelectCategory={onSelectCategory}
-          itemOptions={data.itemOptions}
-        />
-      )}
-      keyExtractor={(item) => item.id}
-    />
+    categories && (
+      <FlatList
+        data={categories}
+        renderItem={({ item }) => (
+          <CategoryRow
+            category={item}
+            onSelectCategory={onSelectCategory}
+            itemOptions={data.itemOptions}
+          />
+        )}
+        keyExtractor={(item) => item.id}
+      />
+    )
   );
 };
 
