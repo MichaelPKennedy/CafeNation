@@ -5,21 +5,21 @@ export interface FeaturedScreenProps {
   navigation: any
   itemOptions: any[]
 }
-interface ChooseItemRouteProps {
+export interface ChooseItemRouteProps {
   item: MenuItem
 }
 
-interface MenuScreenProps {
+export interface MenuScreenProps {
   data: MenuItem[]
   onSelectCategory: any
 }
 
-interface OrderTabProps {
+export interface OrderTabProps {
   data?: MenuItem[]
   navigation: any
 }
 
-interface OrderTabsProps {
+export interface OrderTabsProps {
   data?: MenuItem[]
   onSelectCategory: any
 }
@@ -41,13 +41,13 @@ type CategoryScreenParamList = {
   }
 }
 
-interface CategoryRowProps {
+export interface CategoryRowProps {
   category: MenuItem
   onSelectCategory: any
 }
 
 //types for square menu items
-interface MenuItem {
+export interface MenuItem {
   type?: string
   id?: string
   updatedAt?: string
@@ -65,18 +65,18 @@ interface MenuItem {
   customAttributeValues?: any
 }
 
-interface MenuItems {
+export interface MenuItems {
   data: MenuItem[]
   itemOptions: ItemOption[]
 }
 
-interface ItemOption {
+export interface ItemOption {
   id: string
   name: string
   values: ItemOptionValue[]
 }
 
-interface CategoryData {
+export interface CategoryData {
   name: string
   categoryType: string
   parentCategory: {
@@ -86,14 +86,14 @@ interface CategoryData {
   onlineVisibility: boolean
 }
 
-interface ItemOptionData {
+export interface ItemOptionData {
   name: string
   displayName: string
   showColors: boolean
   values: ItemOptionValue[]
 }
 
-interface ItemOptionValue {
+export interface ItemOptionValue {
   type: string
   id: string
   version: string
@@ -104,7 +104,7 @@ interface ItemOptionValue {
   }
 }
 
-interface ItemData {
+export interface ItemData {
   name: string
   description: string
   variations: ItemVariation[]
@@ -120,28 +120,28 @@ interface ItemData {
   imageIds: string[]
 }
 
-interface modifierListInfo {
+export interface modifierListInfo {
   modifierListId: string
   minSelectedModifiers: number
   maxSelectedModifiers: number
   enabled: boolean
 }
 
-interface ReportingCategory {
+export interface ReportingCategory {
   id: string
   ordinal: string
 }
 
-interface Categories {
+export interface Categories {
   id: string
   ordinal: string
 }
 
-interface ItemOptions {
+export interface ItemOptions {
   itemOptionId: string
 }
 
-interface ItemVariation {
+export interface ItemVariation {
   type: string
   id: string
   updatedAt: string
@@ -151,7 +151,7 @@ interface ItemVariation {
   itemVariationData: ItemVariationData
 }
 
-interface ItemVariationData {
+export interface ItemVariationData {
   itemId: string
   name: string
   ordinal: number
@@ -162,7 +162,7 @@ interface ItemVariationData {
   stockable: boolean
 }
 
-interface ItemOptionValue {
+export interface ItemOptionValue {
   itemOptionId: string
   itemOptionValueId: string
 }
