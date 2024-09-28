@@ -8,18 +8,43 @@ import {
   ScrollView,
   Image,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import type { MenuItem, MenuData } from "./types";
 
-const CategoryRow = ({
+interface CategoryRowProps {
+  category: MenuItem;
+  onSelectCategory: (category: string) => void;
+  itemOptions: any[];
+}
+
+export interface FeaturedScreenProps {
+  data: MenuData;
+  onSelectCategory: (category: string) => void;
+}
+
+type RootStackParamList = {
+  ChooseItemScreen: { item: MenuItem; itemOptions: any };
+  // Add other screen names and their params here if needed
+};
+
+type CategoryRowNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "ChooseItemScreen"
+>;
+
+const CategoryRow: React.FC<CategoryRowProps> = ({
   category,
   onSelectCategory,
-  navigation,
   itemOptions,
 }) => {
+  const navigation = useNavigation<CategoryRowNavigationProp>();
+
   const viewAll = () => {
-    onSelectCategory(category.categoryData?.name);
+    onSelectCategory(category.categoryData?.name || "");
   };
 
-  const selectItem = (selectedItem) => {
+  const selectItem = (selectedItem: MenuItem) => {
     navigation.navigate("ChooseItemScreen", {
       item: selectedItem,
       itemOptions,
@@ -56,26 +81,27 @@ const CategoryRow = ({
   );
 };
 
-const FeaturedScreen = ({ data, onSelectCategory, navigation }) => {
-  const categories = data.data?.filter(
-    (item) => item.parentType && item.parentType === "Featured"
-  );
+const FeaturedScreen: React.FC<FeaturedScreenProps> = ({
+  data,
+  onSelectCategory,
+}) => {
+  const categories =
+    data.data?.filter(
+      (item): item is MenuItem => item.parentType === "Featured"
+    ) ?? [];
 
   return (
-    categories && (
-      <FlatList
-        data={categories}
-        renderItem={({ item }) => (
-          <CategoryRow
-            category={item}
-            onSelectCategory={onSelectCategory}
-            navigation={navigation}
-            itemOptions={data.itemOptions}
-          />
-        )}
-        keyExtractor={(item) => item.id}
-      />
-    )
+    <FlatList
+      data={categories}
+      renderItem={({ item }) => (
+        <CategoryRow
+          category={item}
+          onSelectCategory={onSelectCategory}
+          itemOptions={data.itemOptions}
+        />
+      )}
+      keyExtractor={(item) => item.id}
+    />
   );
 };
 

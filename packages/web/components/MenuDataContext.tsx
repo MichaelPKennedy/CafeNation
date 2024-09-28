@@ -1,4 +1,5 @@
 import React, { createContext, useContext } from "react";
+import { MenuData } from "./types";
 
 export const MenuDataContext = createContext<MenuData>({
   data: [],

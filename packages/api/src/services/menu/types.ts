@@ -1,9 +1,10 @@
 //props types for components
-interface FeaturedScreenProps {
+export interface FeaturedScreenProps {
   data?: MenuItem[]
   onSelectCategory: any
+  navigation: any
+  itemOptions: any[]
 }
-
 interface ChooseItemRouteProps {
   item: MenuItem
 }

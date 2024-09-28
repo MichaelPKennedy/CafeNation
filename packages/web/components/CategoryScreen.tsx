@@ -7,9 +7,31 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 import { useMenuData } from "./MenuDataContext";
 import { FontAwesome } from "@expo/vector-icons";
+
+// Define types for your navigation parameters
+type RootStackParamList = {
+  CategoryScreen: { selectedCategory?: string };
+  ChooseItemScreen: { item: MenuItem; itemOptions: any };
+};
+
+type CategoryScreenRouteProp = RouteProp<RootStackParamList, "CategoryScreen">;
+type CategoryScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "CategoryScreen"
+>;
+
+// Define MenuItem type if not already defined
+type MenuItem = {
+  id: string;
+  imageUrl?: string;
+  itemData?: {
+    name: string;
+  };
+};
 
 const ItemComponent: React.FC<{ item: MenuItem }> = ({ item }) => {
   return (
@@ -22,9 +44,11 @@ const ItemComponent: React.FC<{ item: MenuItem }> = ({ item }) => {
   );
 };
 
-const CategoryScreen = ({ route, navigation }) => {
+const CategoryScreen: React.FC = () => {
   const menuData = useMenuData();
-  const { selectedCategory } = useNavigation().getState().routes[1].params;
+  const navigation = useNavigation<CategoryScreenNavigationProp>();
+  const route = useRoute<CategoryScreenRouteProp>();
+  const selectedCategory = route.params?.selectedCategory || "Default Category";
 
   const handleBackPress = () => {
     navigation.goBack();
@@ -37,11 +61,10 @@ const CategoryScreen = ({ route, navigation }) => {
   });
   const data = categoryData?.categoryItems || [];
 
-  const renderItem = ({ item, index }) => {
-    //check if the last item should be styled differently
+  const renderItem = ({ item, index }: { item: MenuItem; index: number }) => {
     const isLastItem = data.length % 2 !== 0 && index === data.length - 1;
 
-    const selectItem = (selectedItem) => {
+    const selectItem = (selectedItem: MenuItem) => {
       navigation.navigate("ChooseItemScreen", {
         item: selectedItem,
         itemOptions: menuData.itemOptions,
