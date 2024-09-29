@@ -29,6 +29,7 @@ const ChooseItemScreen = ({
   const [selectedFlavor, setSelectedFlavor] = useState("");
   const [selectedVariation, setSelectedVariation] =
     useState<ItemVariation | null>(null);
+  const [showAddedMessage, setShowAddedMessage] = useState(false);
 
   const { user, signIn, signOut } = useContext(UserContext);
   const { addToCart, cartItems } = useContext(CartContext);
@@ -42,11 +43,12 @@ const ChooseItemScreen = ({
       const itemToAdd = {
         id: selectedVariation.id,
         name: item.itemData.name,
-        price: selectedVariation.itemVariationData.priceMoney.amount,
+        price: Number(selectedVariation.itemVariationData.priceMoney.amount),
         size: selectedSize,
         flavor: selectedFlavor,
         imageUrl: item.imageUrl,
         quantity: 1,
+        currency: "USD",
       };
 
       if (user) {
@@ -54,11 +56,15 @@ const ChooseItemScreen = ({
           // TODO: add cart item to database
           // await addCartItemToDatabase(itemToAdd);
           // addToCart(itemToAdd);
+          setShowAddedMessage(true);
+          setTimeout(() => setShowAddedMessage(false), 2000);
         } catch (error) {
           console.error("Error updating cart in database", error);
         }
       } else {
         addToCart(itemToAdd);
+        setShowAddedMessage(true);
+        setTimeout(() => setShowAddedMessage(false), 2000);
       }
     }
   };
@@ -303,6 +309,12 @@ const ChooseItemScreen = ({
       >
         <Text style={styles.addToOrderText}>Add to order</Text>
       </TouchableOpacity>
+
+      {showAddedMessage && (
+        <View style={styles.addedMessageContainer}>
+          <Text style={styles.addedMessageText}>Added to cart!</Text>
+        </View>
+      )}
     </ScrollView>
   );
 };
@@ -451,6 +463,21 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     margin: 10,
+  },
+  addedMessageContainer: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+    alignItems: "center",
+    zIndex: 1000,
+  },
+  addedMessageText: {
+    backgroundColor: "rgba(76, 175, 80, 0.9)",
+    color: "#ffffff",
+    padding: 10,
+    borderRadius: 5,
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 

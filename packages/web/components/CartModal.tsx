@@ -67,8 +67,8 @@ const CartModal = ({
     }
 
     try {
-      const sourceId = "cnon:card-nonce-ok";
-      await checkout(calculatedTotal, sourceId);
+      const fakeSourceId = "cnon:card-nonce-ok";
+      await checkout(calculatedTotal, fakeSourceId);
       if (orderStatus === "completed") {
         setShowSuccessModal(true);
         onClose();
