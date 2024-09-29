@@ -5,7 +5,7 @@ import axios from "axios";
 const isMobileTesting = process.env.REACT_APP_MOBILE_TESTING;
 const DEFAULT_API_ENDPOINT = "http://10.0.0.16:3030";
 
-const API_ENDPOINT = import.meta.env.VITE_API_URL || DEFAULT_API_ENDPOINT;
+const API_ENDPOINT = process.env.REACT_APP_API_URL || DEFAULT_API_ENDPOINT;
 
 const axiosInstance = axios.create({
   timeout: 10000, // Increase timeout to 10 seconds
