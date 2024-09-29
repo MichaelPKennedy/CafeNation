@@ -70,15 +70,14 @@ const CartModal = ({
     }
 
     try {
+      setOrderStatus("processing");
       const fakeSourceId = "cnon:card-nonce-ok";
       await checkout(calculatedTotal, fakeSourceId);
-      if (orderStatus === "completed") {
-        setShowSuccessModal(true);
-        console.log("closing");
-        onClose();
-      }
+      setOrderStatus("completed");
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Error placing order:", error);
+      setOrderStatus("failed");
     }
   };
 
@@ -128,8 +127,11 @@ const CartModal = ({
     <Modal
       animationType="slide"
       transparent={true}
-      visible={showSuccessModal && orderStatus === "completed"}
-      onRequestClose={() => setShowSuccessModal(false)}
+      visible={showSuccessModal}
+      onRequestClose={() => {
+        setShowSuccessModal(false);
+        handleClose();
+      }}
     >
       <View style={styles.centeredView}>
         <View style={styles.successModalView}>
@@ -140,6 +142,7 @@ const CartModal = ({
             title="Close"
             onPress={() => {
               setShowSuccessModal(false);
+              handleClose();
             }}
           />
         </View>
@@ -172,19 +175,24 @@ const CartModal = ({
     setShowPaymentOptions(false);
   };
 
+  const handleClose = () => {
+    setIsPaymentView(false);
+    setShowPaymentOptions(false);
+    setSelectedPayment("");
+    setOrderStatus("");
+    onClose();
+  };
+
   return (
     <>
       <Modal
         animationType="slide"
         transparent={false}
         visible={isVisible}
-        onRequestClose={onClose}
+        onRequestClose={handleClose}
       >
         <View style={styles.modalView}>
-          <TouchableOpacity
-            onPress={isPaymentView ? handleBackToCart : onClose}
-            style={styles.backButton}
-          >
+          <TouchableOpacity onPress={handleClose} style={styles.backButton}>
             <FontAwesome
               name="angle-left"
               size={24}
@@ -192,11 +200,7 @@ const CartModal = ({
               style={styles.backIcon}
             />
           </TouchableOpacity>
-          <Text style={styles.modalTitle}>
-            {showPaymentOptions
-              ? "Payment"
-              : `Review order (${cartItems.length})`}
-          </Text>
+          <Text style={styles.modalTitle}>Your Cart</Text>
           {!isPaymentView ? (
             <>
               <FlatList
@@ -204,6 +208,17 @@ const CartModal = ({
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
               />
+              <View style={styles.totalContainer}>
+                <Text style={styles.totalText}>
+                  Total: ${calculatedTotal.toFixed(2)}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.button, styles.greenButton]}
+                onPress={handleProceedToPayment}
+              >
+                <Text style={styles.buttonText}>Proceed to Payment</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.button, { backgroundColor: "#ff6b6b" }]}
                 onPress={clearCart}
@@ -212,22 +227,17 @@ const CartModal = ({
                   Clear Cart
                 </Text>
               </TouchableOpacity>
-              <View style={styles.totalContainer}>
-                <Text style={styles.totalText}>
-                  Total: ${(calculatedTotal / 100).toFixed(2)}
-                </Text>
-              </View>
-              <TouchableOpacity
-                style={[styles.button, styles.blackButton]}
-                onPress={handleProceedToPayment}
-              >
-                <Text style={styles.buttonText}>Proceed to Payment</Text>
-              </TouchableOpacity>
             </>
           ) : (
             showPaymentOptions && renderPaymentOptions()
           )}
-          <Button title="Continue Shopping" onPress={onClose} color="#4A90E2" />
+          {!isPaymentView && (
+            <Button
+              title="Continue Shopping"
+              onPress={handleClose}
+              color="#4A90E2"
+            />
+          )}
         </View>
       </Modal>
       {renderSuccessModal()}
