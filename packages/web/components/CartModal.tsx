@@ -12,7 +12,13 @@ import {
 import { CartContext } from "./CartContext";
 import { FontAwesome } from "@expo/vector-icons";
 
-const CartModal = ({ isVisible, onClose }) => {
+const CartModal = ({
+  isVisible,
+  onClose,
+}: {
+  isVisible: boolean;
+  onClose: () => void;
+}) => {
   const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
 
   const totalAmount = cartItems.reduce((sum, item) => {

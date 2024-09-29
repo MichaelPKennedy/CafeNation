@@ -1,18 +1,18 @@
 import React from "react";
 import {
-  StyleSheet,
-  FlatList,
-  Text,
   View,
-  Image,
+  Text,
+  FlatList,
   TouchableOpacity,
+  StyleSheet,
+  Image,
 } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { useMenuData } from "./MenuDataContext";
+import { useMenuData } from "./MenuDataContext"; // Use the context here
+import { MenuItem } from "./types"; // Import MenuItem type
 import { FontAwesome } from "@expo/vector-icons";
 
-// Define types for your navigation parameters
 type RootStackParamList = {
   CategoryScreen: { selectedCategory?: string };
   ChooseItemScreen: { item: MenuItem; itemOptions: any };
@@ -23,15 +23,6 @@ type CategoryScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   "CategoryScreen"
 >;
-
-// Define MenuItem type if not already defined
-type MenuItem = {
-  id: string;
-  imageUrl?: string;
-  itemData?: {
-    name: string;
-  };
-};
 
 const ItemComponent: React.FC<{ item: MenuItem }> = ({ item }) => {
   return (
@@ -45,7 +36,7 @@ const ItemComponent: React.FC<{ item: MenuItem }> = ({ item }) => {
 };
 
 const CategoryScreen: React.FC = () => {
-  const menuData = useMenuData();
+  const { menuData, isLoading } = useMenuData();
   const navigation = useNavigation<CategoryScreenNavigationProp>();
   const route = useRoute<CategoryScreenRouteProp>();
   const selectedCategory = route.params?.selectedCategory || "Default Category";
@@ -54,11 +45,19 @@ const CategoryScreen: React.FC = () => {
     navigation.goBack();
   };
 
-  const categoryData = menuData.data?.find((item) => {
+  if (isLoading) {
     return (
-      item.type === "CATEGORY" && item.categoryData?.name === selectedCategory
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Loading menu data...</Text>
+      </View>
     );
-  });
+  }
+
+  const categoryData = menuData?.data?.find(
+    (item) =>
+      item.type === "CATEGORY" && item.categoryData?.name === selectedCategory
+  );
+
   const data = categoryData?.categoryItems || [];
 
   const renderItem = ({ item, index }: { item: MenuItem; index: number }) => {
@@ -67,7 +66,7 @@ const CategoryScreen: React.FC = () => {
     const selectItem = (selectedItem: MenuItem) => {
       navigation.navigate("ChooseItemScreen", {
         item: selectedItem,
-        itemOptions: menuData.itemOptions,
+        itemOptions: menuData?.itemOptions,
       });
     };
 
@@ -110,7 +109,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     marginBottom: 10,
   },
-  container: {},
+  container: {
+    flex: 1,
+  },
   categoryTitle: {
     fontSize: 27,
     fontWeight: "bold",
@@ -132,7 +133,6 @@ const styles = StyleSheet.create({
   backIcon: {
     marginTop: -2.5,
   },
-
   lastItemAlone: {
     marginRight: "50%",
   },

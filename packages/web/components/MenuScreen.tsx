@@ -8,7 +8,8 @@ import {
   Image,
 } from "react-native";
 
-// Component to render each category row
+import { CategoryRowProps, MenuScreenProps } from "./types";
+
 const CategoryRow: React.FC<CategoryRowProps> = ({
   category,
   onSelectCategory,
@@ -17,7 +18,6 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
     onSelectCategory(category.categoryData?.name);
   };
 
-  // Retrieve the category's image from the items
   const categoryImage = category.categoryItems?.find(
     (item) =>
       item.itemData?.categories.some((cat) => cat.id === category.id) &&
@@ -72,7 +72,6 @@ const MenuScreen: React.FC<MenuScreenProps> = ({ data, onSelectCategory }) => {
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
   categoryRow: {
     flexDirection: "row",

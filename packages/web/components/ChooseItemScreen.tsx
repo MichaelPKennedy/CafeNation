@@ -10,8 +10,21 @@ import {
 import { FontAwesome } from "@expo/vector-icons";
 import { CartContext } from "./CartContext";
 import { UserContext } from "./UserContext";
+import {
+  ItemVariation,
+  ItemOptionData,
+  ItemOptionValue,
+  TransformedItemOptionValue,
+} from "./types";
 
-const ChooseItemScreen = ({ route, navigation }) => {
+const ChooseItemScreen = ({
+  route,
+  navigation,
+}: {
+  route: any;
+  navigation: any;
+}) => {
+  console.log("ChooseItemScreen is rendering");
   const { item, itemOptions } = route.params;
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedFlavor, setSelectedFlavor] = useState("");
@@ -34,12 +47,14 @@ const ChooseItemScreen = ({ route, navigation }) => {
         size: selectedSize,
         flavor: selectedFlavor,
         imageUrl: item.imageUrl,
+        quantity: 1,
       };
 
       if (user) {
         try {
-          await addCartItemToDatabase(itemToAdd);
-          addToCart(itemToAdd);
+          // TODO: add cart item to database
+          // await addCartItemToDatabase(itemToAdd);
+          // addToCart(itemToAdd);
         } catch (error) {
           console.error("Error updating cart in database", error);
         }
@@ -55,8 +70,9 @@ const ChooseItemScreen = ({ route, navigation }) => {
         if (!user) {
           return;
         }
-        const fetchedItems = await getCartItemsFromDatabase();
-        setCartItems(fetchedItems);
+        // TODO: fetch cart items from database
+        // const fetchedItems = await getCartItemsFromDatabase();
+        // setCartItems(fetchedItems);
       } catch (error) {
         console.error("Error fetching cart items", error);
       }

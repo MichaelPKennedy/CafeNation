@@ -1,5 +1,7 @@
 import React, { createContext, useState, ReactNode, useEffect } from "react";
 
+import { CartItemType } from "./types";
+
 // Define the type for the context
 type CartContextType = {
   cartItems: CartItemType[];

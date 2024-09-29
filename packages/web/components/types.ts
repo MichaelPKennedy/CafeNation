@@ -167,7 +167,7 @@ export interface TransformedItemOptionValue extends ItemOptionValue {
   name: string;
 }
 
-type CartItemType = {
+export type CartItemType = {
   id: string;
   name: string;
   size?: string;

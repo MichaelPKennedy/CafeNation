@@ -1,3 +1,4 @@
+import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {
   DarkTheme,
@@ -5,12 +6,9 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
+import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
-import "react-native-reanimated";
-
-import { useColorScheme } from "@/components/useColorScheme";
+import { useColorScheme } from "react-native";
 
 export {
   // Catch any errors thrown by the Layout component.
