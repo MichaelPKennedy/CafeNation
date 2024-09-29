@@ -19,8 +19,15 @@ const CartModal = ({
   isVisible: boolean;
   onClose: () => void;
 }) => {
-  const { cartItems, addToCart, removeFromCart, checkout, orderStatus } =
-    useContext(CartContext);
+  const {
+    cartItems,
+    addToCart,
+    removeFromCart,
+    checkout,
+    orderStatus,
+    showSuccessModal,
+    setShowSuccessModal,
+  } = useContext(CartContext);
   const [totalAmount, setTotalAmount] = useState(0);
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState("");
@@ -60,10 +67,12 @@ const CartModal = ({
     }
 
     try {
-      // Use a test card nonce for Square Sandbox
-      const fakeSourceId = "cnon:card-nonce-ok";
-      await checkout(calculatedTotal, fakeSourceId);
-      // onClose();
+      const sourceId = "cnon:card-nonce-ok";
+      await checkout(calculatedTotal, sourceId);
+      if (orderStatus === "completed") {
+        setShowSuccessModal(true);
+        onClose();
+      }
     } catch (error) {
       console.error("Error placing order:", error);
     }
@@ -110,77 +119,103 @@ const CartModal = ({
     </View>
   );
 
-  return (
+  const renderSuccessModal = () => (
     <Modal
       animationType="slide"
-      transparent={false}
-      visible={isVisible}
-      onRequestClose={onClose}
+      transparent={true}
+      visible={showSuccessModal && orderStatus === "completed"}
+      onRequestClose={() => setShowSuccessModal(false)}
     >
-      <View style={styles.modalView}>
-        <TouchableOpacity onPress={onClose} style={styles.backButton}>
-          <FontAwesome
-            name="angle-left"
-            size={24}
-            color="black"
-            style={styles.backIcon}
+      <View style={styles.centeredView}>
+        <View style={styles.successModalView}>
+          <Text style={styles.successModalText}>
+            Order Placed Successfully!
+          </Text>
+          <Button
+            title="Close"
+            onPress={() => {
+              setShowSuccessModal(false);
+            }}
           />
-        </TouchableOpacity>
-        <Text style={styles.modalTitle}>
-          {showPaymentOptions
-            ? "Payment"
-            : `Review order (${cartItems.length})`}
-        </Text>
-        {!showPaymentOptions ? (
-          <>
-            <FlatList
-              data={cartItems}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <View style={styles.itemContainer}>
-                  <Image
-                    source={{ uri: item.imageUrl }}
-                    style={styles.itemImage}
-                  />
-                  <View style={styles.itemDetails}>
-                    <Text style={styles.itemName}>{item.name}</Text>
-                    {item.size && <Text>Size: {item.size}</Text>}
-                    {item.flavor && <Text>Flavor: {item.flavor}</Text>}
-                    <Text>Price: ${item.price / 100}</Text>
-                    <View style={styles.quantityContainer}>
-                      <TouchableOpacity
-                        onPress={() => decrementQuantity(item.id)}
-                      >
-                        <Text style={styles.quantityButton}>-</Text>
-                      </TouchableOpacity>
-                      <Text style={styles.quantity}>{item.quantity}</Text>
-                      <TouchableOpacity
-                        onPress={() => incrementQuantity(item.id)}
-                      >
-                        <Text style={styles.quantityButton}>+</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              )}
-            />
-            <View style={styles.totalContainer}>
-              <Text style={styles.totalText}>
-                Total: ${(totalAmount / 100).toFixed(2)}
-              </Text>
-            </View>
-            <Button
-              title="Proceed to Payment"
-              onPress={handleProceedToPayment}
-              color="#56C568"
-            />
-          </>
-        ) : (
-          renderPaymentOptions()
-        )}
-        <Button title="Continue Shopping" onPress={onClose} color="#4A90E2" />
+        </View>
       </View>
     </Modal>
+  );
+
+  return (
+    <>
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={isVisible}
+        onRequestClose={onClose}
+      >
+        <View style={styles.modalView}>
+          <TouchableOpacity onPress={onClose} style={styles.backButton}>
+            <FontAwesome
+              name="angle-left"
+              size={24}
+              color="black"
+              style={styles.backIcon}
+            />
+          </TouchableOpacity>
+          <Text style={styles.modalTitle}>
+            {showPaymentOptions
+              ? "Payment"
+              : `Review order (${cartItems.length})`}
+          </Text>
+          {!showPaymentOptions ? (
+            <>
+              <FlatList
+                data={cartItems}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <View style={styles.itemContainer}>
+                    <Image
+                      source={{ uri: item.imageUrl }}
+                      style={styles.itemImage}
+                    />
+                    <View style={styles.itemDetails}>
+                      <Text style={styles.itemName}>{item.name}</Text>
+                      {item.size && <Text>Size: {item.size}</Text>}
+                      {item.flavor && <Text>Flavor: {item.flavor}</Text>}
+                      <Text>Price: ${item.price / 100}</Text>
+                      <View style={styles.quantityContainer}>
+                        <TouchableOpacity
+                          onPress={() => decrementQuantity(item.id)}
+                        >
+                          <Text style={styles.quantityButton}>-</Text>
+                        </TouchableOpacity>
+                        <Text style={styles.quantity}>{item.quantity}</Text>
+                        <TouchableOpacity
+                          onPress={() => incrementQuantity(item.id)}
+                        >
+                          <Text style={styles.quantityButton}>+</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </View>
+                )}
+              />
+              <View style={styles.totalContainer}>
+                <Text style={styles.totalText}>
+                  Total: ${(totalAmount / 100).toFixed(2)}
+                </Text>
+              </View>
+              <Button
+                title="Proceed to Payment"
+                onPress={handleProceedToPayment}
+                color="#56C568"
+              />
+            </>
+          ) : (
+            renderPaymentOptions()
+          )}
+          <Button title="Continue Shopping" onPress={onClose} color="#4A90E2" />
+        </View>
+      </Modal>
+      {renderSuccessModal()}
+    </>
   );
 };
 
@@ -277,6 +312,33 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginVertical: 10,
     color: "#56C568",
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  successModalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  successModalText: {
+    marginBottom: 15,
+    textAlign: "center",
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
 

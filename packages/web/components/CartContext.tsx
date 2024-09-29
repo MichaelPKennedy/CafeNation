@@ -18,6 +18,8 @@ type CartContextType = {
   checkout: (totalAmount: number, sourceId: string) => Promise<void>;
   orderStatus: string;
   setOrderStatus: (status: string) => void;
+  showSuccessModal: boolean;
+  setShowSuccessModal: (show: boolean) => void;
 };
 
 export const CartContext = createContext<CartContextType>({
@@ -27,6 +29,8 @@ export const CartContext = createContext<CartContextType>({
   checkout: async () => {},
   orderStatus: "",
   setOrderStatus: () => {},
+  showSuccessModal: false,
+  setShowSuccessModal: () => {},
 });
 
 type CartProviderProps = {
@@ -36,6 +40,7 @@ type CartProviderProps = {
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItemType[]>([]);
   const [orderStatus, setOrderStatus] = useState<string>("");
+  const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const { user } = useContext(UserContext);
 
   const fetchCartItems = useCallback(async () => {
@@ -140,6 +145,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
       setCartItems([]);
       setOrderStatus("completed");
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Checkout failed:", error);
       setOrderStatus("failed");
@@ -155,6 +161,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         checkout,
         orderStatus,
         setOrderStatus,
+        showSuccessModal,
+        setShowSuccessModal,
       }}
     >
       {children}
