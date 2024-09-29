@@ -15,6 +15,7 @@ type CartContextType = {
   cartItems: CartItemType[];
   addToCart: (item: CartItemType) => void;
   removeFromCart: (itemId: string) => void;
+  clearCart: () => void;
   checkout: (totalAmount: number, sourceId: string) => Promise<void>;
   orderStatus: string;
   setOrderStatus: (status: string) => void;
@@ -26,6 +27,7 @@ export const CartContext = createContext<CartContextType>({
   cartItems: [],
   addToCart: () => {},
   removeFromCart: () => {},
+  clearCart: () => {},
   checkout: async () => {},
   orderStatus: "",
   setOrderStatus: () => {},
@@ -70,44 +72,81 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   }, [fetchCartItems]);
 
   const addToCart = async (newItem: CartItemType) => {
-    console.log("Adding item to cart:", newItem);
     if (user) {
       try {
-        await feathersClient.service("cart").create({
-          user_id: user.id,
-          product_id: newItem.id,
-          item_name: newItem.name,
-          description: newItem.description,
-          item_variation_id: newItem.item_variation_id,
-          variation_name: newItem.variation_name,
-          price: Number(newItem.price),
-          currency: newItem.currency,
-          additional_notes: newItem.additional_notes,
-          quantity: newItem.quantity,
+        const existingItem = await feathersClient.service("cart").find({
+          query: {
+            user_id: user.id,
+            product_id: newItem.id,
+            item_variation_id: newItem.item_variation_id,
+          },
         });
+
+        if (existingItem.length > 0) {
+          await feathersClient.service("cart").patch(existingItem[0].id, {
+            quantity: existingItem[0].quantity + 1,
+          });
+        } else {
+          await feathersClient.service("cart").create({
+            ...newItem,
+            user_id: user.id,
+            quantity: 1,
+          });
+        }
         await fetchCartItems();
       } catch (error) {
         console.error("Error adding item to cart:", error);
       }
     } else {
-      const updatedCart = [...cartItems, newItem];
-      setCartItems(updatedCart);
-      await AsyncStorage.setItem("guestCart", JSON.stringify(updatedCart));
+      const existingItemIndex = cartItems.findIndex(
+        (item) =>
+          item.id === newItem.id &&
+          item.item_variation_id === newItem.item_variation_id
+      );
+      if (existingItemIndex !== -1) {
+        const updatedCart = [...cartItems];
+        updatedCart[existingItemIndex].quantity += 1;
+        setCartItems(updatedCart);
+        await AsyncStorage.setItem("guestCart", JSON.stringify(updatedCart));
+      } else {
+        const updatedCart = [...cartItems, { ...newItem, quantity: 1 }];
+        setCartItems(updatedCart);
+        await AsyncStorage.setItem("guestCart", JSON.stringify(updatedCart));
+      }
     }
   };
 
   const removeFromCart = async (itemId: string) => {
     if (user) {
       try {
-        await feathersClient.service("cart").remove(null, {
-          query: { user_id: user.id, product_id: itemId },
+        const existingItem = await feathersClient.service("cart").find({
+          query: {
+            user_id: user.id,
+            product_id: itemId,
+          },
         });
+
+        if (existingItem.length > 0) {
+          if (existingItem[0].quantity > 1) {
+            await feathersClient.service("cart").patch(existingItem[0].id, {
+              quantity: existingItem[0].quantity - 1,
+            });
+          } else {
+            await feathersClient.service("cart").remove(existingItem[0].id);
+          }
+        }
         await fetchCartItems();
       } catch (error) {
         console.error("Error removing item from cart:", error);
       }
     } else {
-      const updatedCart = cartItems.filter((item) => item.id !== itemId);
+      const updatedCart = cartItems
+        .map((item) =>
+          item.id === itemId && item.quantity > 1
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        )
+        .filter((item) => item.id !== itemId || item.quantity > 0);
       setCartItems(updatedCart);
       await AsyncStorage.setItem("guestCart", JSON.stringify(updatedCart));
     }
@@ -152,12 +191,29 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
   };
 
+  const clearCart = async () => {
+    if (user) {
+      try {
+        await feathersClient.service("cart").remove(null, {
+          query: { user_id: user.id },
+        });
+        await fetchCartItems();
+      } catch (error) {
+        console.error("Error clearing cart:", error);
+      }
+    } else {
+      setCartItems([]);
+      await AsyncStorage.removeItem("guestCart");
+    }
+  };
+
   return (
     <CartContext.Provider
       value={{
         cartItems,
         addToCart,
         removeFromCart,
+        clearCart,
         checkout,
         orderStatus,
         setOrderStatus,

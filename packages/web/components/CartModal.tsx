@@ -12,6 +12,8 @@ import {
 import { CartContext } from "./CartContext";
 import { FontAwesome } from "@expo/vector-icons";
 
+import { CartItemType } from "./types";
+
 const CartModal = ({
   isVisible,
   onClose,
@@ -23,14 +25,16 @@ const CartModal = ({
     cartItems,
     addToCart,
     removeFromCart,
+    clearCart,
     checkout,
     orderStatus,
     showSuccessModal,
     setShowSuccessModal,
+    setOrderStatus,
   } = useContext(CartContext);
-  const [totalAmount, setTotalAmount] = useState(0);
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState("");
+  const [isPaymentView, setIsPaymentView] = useState(false);
 
   const [calculatedTotal, setCalculatedTotal] = React.useState(0);
 
@@ -41,11 +45,8 @@ const CartModal = ({
     setCalculatedTotal(calculatedTotal);
   }, [cartItems]);
 
-  const incrementQuantity = (id: string) => {
-    const item = cartItems.find((item) => item.id === id);
-    if (item) {
-      addToCart(item);
-    }
+  const incrementQuantity = (item: CartItemType) => {
+    addToCart(item);
   };
 
   const decrementQuantity = (id: string) => {
@@ -57,7 +58,9 @@ const CartModal = ({
   };
 
   const handleProceedToPayment = () => {
+    setIsPaymentView(true);
     setShowPaymentOptions(true);
+    setOrderStatus("");
   };
 
   const handlePlaceOrder = async () => {
@@ -71,6 +74,7 @@ const CartModal = ({
       await checkout(calculatedTotal, fakeSourceId);
       if (orderStatus === "completed") {
         setShowSuccessModal(true);
+        console.log("closing");
         onClose();
       }
     } catch (error) {
@@ -110,12 +114,13 @@ const CartModal = ({
         <Text>Test Credit Card (4111 1111 1111 1111)</Text>
       </TouchableOpacity>
       {renderOrderStatus()}
-      <Button
-        title="Place Order"
+      <TouchableOpacity
+        style={[styles.button, styles.greenButton]}
         onPress={handlePlaceOrder}
         disabled={!selectedPayment || orderStatus === "processing"}
-        color="#56C568"
-      />
+      >
+        <Text style={styles.buttonText}>Place Order</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -142,6 +147,31 @@ const CartModal = ({
     </Modal>
   );
 
+  const renderItem = ({ item }: { item: CartItemType }) => (
+    <View style={styles.itemContainer}>
+      <Image source={{ uri: item.imageUrl }} style={styles.itemImage} />
+      <View style={styles.itemDetails}>
+        <Text style={styles.itemName}>{item.name}</Text>
+        <Text>${(item.price / 100 || 0).toFixed(2)}</Text>
+        <Text>Quantity: {item.quantity}</Text>
+      </View>
+      <View style={styles.quantityContainer}>
+        <TouchableOpacity onPress={() => decrementQuantity(item.id)}>
+          <Text style={styles.quantityButton}>-</Text>
+        </TouchableOpacity>
+        <Text>{item.quantity}</Text>
+        <TouchableOpacity onPress={() => incrementQuantity(item)}>
+          <Text style={styles.quantityButton}>+</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const handleBackToCart = () => {
+    setIsPaymentView(false);
+    setShowPaymentOptions(false);
+  };
+
   return (
     <>
       <Modal
@@ -151,7 +181,10 @@ const CartModal = ({
         onRequestClose={onClose}
       >
         <View style={styles.modalView}>
-          <TouchableOpacity onPress={onClose} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={isPaymentView ? handleBackToCart : onClose}
+            style={styles.backButton}
+          >
             <FontAwesome
               name="angle-left"
               size={24}
@@ -164,52 +197,35 @@ const CartModal = ({
               ? "Payment"
               : `Review order (${cartItems.length})`}
           </Text>
-          {!showPaymentOptions ? (
+          {!isPaymentView ? (
             <>
               <FlatList
                 data={cartItems}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                  <View style={styles.itemContainer}>
-                    <Image
-                      source={{ uri: item.imageUrl }}
-                      style={styles.itemImage}
-                    />
-                    <View style={styles.itemDetails}>
-                      <Text style={styles.itemName}>{item.name}</Text>
-                      {item.size && <Text>Size: {item.size}</Text>}
-                      {item.flavor && <Text>Flavor: {item.flavor}</Text>}
-                      <Text>Price: ${item.price / 100}</Text>
-                      <View style={styles.quantityContainer}>
-                        <TouchableOpacity
-                          onPress={() => decrementQuantity(item.id)}
-                        >
-                          <Text style={styles.quantityButton}>-</Text>
-                        </TouchableOpacity>
-                        <Text style={styles.quantity}>{item.quantity}</Text>
-                        <TouchableOpacity
-                          onPress={() => incrementQuantity(item.id)}
-                        >
-                          <Text style={styles.quantityButton}>+</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </View>
-                )}
+                renderItem={renderItem}
               />
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: "#ff6b6b" }]}
+                onPress={clearCart}
+              >
+                <Text style={{ color: "white", textAlign: "center" }}>
+                  Clear Cart
+                </Text>
+              </TouchableOpacity>
               <View style={styles.totalContainer}>
                 <Text style={styles.totalText}>
-                  Total: ${(totalAmount / 100).toFixed(2)}
+                  Total: ${(calculatedTotal / 100).toFixed(2)}
                 </Text>
               </View>
-              <Button
-                title="Proceed to Payment"
+              <TouchableOpacity
+                style={[styles.button, styles.blackButton]}
                 onPress={handleProceedToPayment}
-                color="#56C568"
-              />
+              >
+                <Text style={styles.buttonText}>Proceed to Payment</Text>
+              </TouchableOpacity>
             </>
           ) : (
-            renderPaymentOptions()
+            showPaymentOptions && renderPaymentOptions()
           )}
           <Button title="Continue Shopping" onPress={onClose} color="#4A90E2" />
         </View>
@@ -338,6 +354,25 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: "center",
     fontSize: 18,
+    fontWeight: "bold",
+  },
+  greenButton: {
+    backgroundColor: "#56C568",
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  blackButton: {
+    backgroundColor: "black",
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
     fontWeight: "bold",
   },
 });
