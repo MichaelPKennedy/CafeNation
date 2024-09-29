@@ -19,10 +19,8 @@ const client = feathers();
 
 client.configure(restClient.axios(axiosInstance));
 
-// Add a request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    console.log(`Making request to ${config.url}`);
     return config;
   },
   (error) => {
@@ -31,10 +29,8 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Add a response interceptor
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log(`Received response from ${response.config.url}`);
     return response;
   },
   (error) => {

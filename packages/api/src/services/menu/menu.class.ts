@@ -5,11 +5,13 @@ import { Op } from 'sequelize'
 const process = require('process')
 const { Client } = require('square')
 import NodeCache from 'node-cache'
-const _ = require('lodash')
+import startCase from 'lodash/startCase'
+import toLower from 'lodash/toLower'
 
 const myCache = new NodeCache({ stdTTL: 600 }) // Cache for 10 minutes
 
 export type { Menu, MenuData, MenuPatch, MenuQuery }
+import { MenuItems } from './types'
 
 export interface MenuParams extends Params {
   query?: { latitude: string; longitude: string }
@@ -87,7 +89,7 @@ export class MenuService implements ServiceMethods<any> {
           if (item.type === 'CATEGORY' && item.categoryData) {
             const splitName = item.categoryData.name.split('-', 2)
             if (splitName.length === 2) {
-              item.parentType = _.startCase(_.toLower(splitName[0]))
+              item.parentType = startCase(toLower(splitName[0]))
               item.categoryData.name = splitName[1]
             }
           }
@@ -128,6 +130,7 @@ export class MenuService implements ServiceMethods<any> {
           }
         }
 
+        // @ts-ignore
         catalogData.itemOptions = itemOptions
 
         //add items to secondary categories

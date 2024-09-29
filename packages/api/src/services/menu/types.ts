@@ -71,7 +71,7 @@ export interface MenuItems {
 }
 
 export interface ItemOption {
-  id: string
+  id?: string
   name: string
   values: ItemOptionValue[]
 }

@@ -35,7 +35,9 @@ export default function TabLayout() {
           name="index"
           options={{
             title: "Order",
-            tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+            tabBarIcon: ({ color }) => (
+              <TabBarIcon name="coffee" color="black" />
+            ),
             headerRight: () => (
               <View style={{ marginRight: 15 }}>
                 <CartIcon onPress={toggleModal} />
@@ -44,10 +46,10 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="two"
+          name="profile"
           options={{
-            title: "Tab Two",
-            tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+            title: "Profile",
+            tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
           }}
         />
       </Tabs>

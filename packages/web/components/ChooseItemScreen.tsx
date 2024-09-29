@@ -24,7 +24,6 @@ const ChooseItemScreen = ({
   route: any;
   navigation: any;
 }) => {
-  console.log("ChooseItemScreen is rendering");
   const { item, itemOptions } = route.params;
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedFlavor, setSelectedFlavor] = useState("");
@@ -147,7 +146,6 @@ const ChooseItemScreen = ({
       }
     );
     setSelectedVariation(matchedVariation);
-    console.log("matchedVariation", matchedVariation);
   };
 
   useEffect(() => {

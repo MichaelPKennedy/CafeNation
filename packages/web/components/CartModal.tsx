@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import {
   Modal,
   View,
@@ -35,10 +35,6 @@ const CartModal = ({
   const decrementQuantity = (id: string) => {
     removeFromCart(id);
   };
-
-  useEffect(() => {
-    console.log(cartItems);
-  }, []);
 
   return (
     <Modal

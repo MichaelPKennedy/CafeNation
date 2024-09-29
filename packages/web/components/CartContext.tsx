@@ -46,9 +46,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     });
   };
 
-  useEffect(() => {
-    console.log("Cart Items from context", cartItems);
-  }, [cartItems]);
+  useEffect(() => {}, [cartItems]);
 
   return (
     <CartContext.Provider value={{ cartItems, addToCart, removeFromCart }}>

@@ -72,7 +72,6 @@ sequelize
     console.error('Unable to connect to the database:', err)
   })
 
-// Initialize your model with this instance
 MenuCategoryModel(sequelize)
 RestaurantModel(sequelize)
 LocationModel(sequelize)
