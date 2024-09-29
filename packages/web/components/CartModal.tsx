@@ -74,7 +74,8 @@ const CartModal = ({
       const fakeSourceId = "cnon:card-nonce-ok";
       await checkout(calculatedTotal, fakeSourceId);
       setOrderStatus("completed");
-      setShowSuccessModal(true);
+      onClose(); // Close the cart modal
+      setShowSuccessModal(true); // Show the success modal
     } catch (error) {
       console.error("Error placing order:", error);
       setOrderStatus("failed");
