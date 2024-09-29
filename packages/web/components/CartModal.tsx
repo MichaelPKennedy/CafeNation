@@ -202,13 +202,21 @@ const CartModal = ({
             />
           </TouchableOpacity>
           <Text style={styles.modalTitle}>Your Cart</Text>
-          {!isPaymentView ? (
+          {!isPaymentView && cartItems.length > 0 ? (
             <>
               <FlatList
                 data={cartItems}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
               />
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: "#ff6b6b" }]}
+                onPress={clearCart}
+              >
+                <Text style={{ color: "white", textAlign: "center" }}>
+                  Clear Cart
+                </Text>
+              </TouchableOpacity>
               <View style={styles.totalContainer}>
                 <Text style={styles.totalText}>
                   Total: ${calculatedTotal.toFixed(2)}
@@ -220,24 +228,21 @@ const CartModal = ({
               >
                 <Text style={styles.buttonText}>Proceed to Payment</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, { backgroundColor: "#ff6b6b" }]}
-                onPress={clearCart}
-              >
-                <Text style={{ color: "white", textAlign: "center" }}>
-                  Clear Cart
-                </Text>
-              </TouchableOpacity>
             </>
           ) : (
             showPaymentOptions && renderPaymentOptions()
           )}
           {!isPaymentView && (
-            <Button
-              title="Continue Shopping"
-              onPress={handleClose}
-              color="#4A90E2"
-            />
+            <>
+              {!cartItems.length && (
+                <Text style={styles.emptyCartText}>Your cart is empty</Text>
+              )}
+              <Button
+                title="Continue Shopping"
+                onPress={handleClose}
+                color="#4A90E2"
+              />
+            </>
           )}
         </View>
       </Modal>
@@ -385,6 +390,12 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  emptyCartText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
   },
 });
 
