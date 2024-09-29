@@ -472,8 +472,8 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   addedMessageText: {
-    backgroundColor: "rgba(76, 175, 80, 0.9)",
-    color: "#ffffff",
+    backgroundColor: "white",
+    color: "green",
     padding: 10,
     borderRadius: 5,
     fontWeight: "bold",

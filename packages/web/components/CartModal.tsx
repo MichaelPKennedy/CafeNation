@@ -209,17 +209,14 @@ const CartModal = ({
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
               />
-              <TouchableOpacity
-                style={[styles.button, { backgroundColor: "#ff6b6b" }]}
-                onPress={clearCart}
-              >
-                <Text style={{ color: "white", textAlign: "center" }}>
+              <TouchableOpacity onPress={clearCart}>
+                <Text style={{ color: "red", textAlign: "center" }}>
                   Clear Cart
                 </Text>
               </TouchableOpacity>
               <View style={styles.totalContainer}>
                 <Text style={styles.totalText}>
-                  Total: ${calculatedTotal.toFixed(2)}
+                  Total: ${(calculatedTotal / 100).toFixed(2)}
                 </Text>
               </View>
               <TouchableOpacity
