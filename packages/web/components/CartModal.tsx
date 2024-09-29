@@ -158,6 +158,8 @@ const CartModal = ({
         <Text style={styles.itemName}>{item.name}</Text>
         <Text>${(item.price / 100 || 0).toFixed(2)}</Text>
         <Text>Quantity: {item.quantity}</Text>
+        {item.size && <Text>Size: {item.size}</Text>}
+        {item.flavor && <Text>Flavor: {item.flavor}</Text>}
       </View>
       <View style={styles.quantityContainer}>
         <TouchableOpacity onPress={() => decrementQuantity(item.id)}>
