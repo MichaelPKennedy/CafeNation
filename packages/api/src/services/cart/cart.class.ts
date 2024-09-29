@@ -46,18 +46,7 @@ export class CartService implements ServiceMethods<any> {
   }
 
   async create(data: CartItem, params?: Params): Promise<CartItem> {
-    const { orderDetails, ...cartData } = data
-    const newCartItem = await this.sequelize.models.Cart.create(cartData)
-
-    if (orderDetails && orderDetails.length) {
-      for (const detail of orderDetails) {
-        await this.sequelize.models.OrderItemDetails.create({
-          ...detail,
-          cart_id: newCartItem.cart_id
-        })
-      }
-    }
-
+    const newCartItem = await this.sequelize.models.Cart.create(data)
     return this.get(newCartItem.cart_id)
   }
 
@@ -81,13 +70,25 @@ export class CartService implements ServiceMethods<any> {
     return this.get(cart_id, params)
   }
 
-  async remove(cart_id: Id, params?: Params): Promise<CartItem> {
-    const cartItem = await this.get(cart_id, params)
+  async remove(cart_id: NullableId, params?: Params): Promise<CartItem> {
+    if (cart_id === null) {
+      if (!params?.query?.user_id) {
+        throw new Error('No user_id provided in params')
+      }
+      const { user_id } = params.query
+      const cartItems = await this.sequelize.models.Cart.findAll({
+        where: { user_id }
+      })
+      await this.sequelize.models.Cart.destroy({
+        where: { user_id }
+      })
+      return cartItems
+    }
 
+    const cartItem = await this.get(cart_id, params)
     await this.sequelize.models.Cart.destroy({
       where: { cart_id }
     })
-
     return cartItem
   }
 }

@@ -1,6 +1,7 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 import { Orders } from './orders.model'
 import { Products } from './products.model'
+import { Users } from './users.model'
 
 export class Cart extends Model {}
 
@@ -21,11 +22,43 @@ export const CartModel = (sequelize: Sequelize) => {
         }
       },
       product_id: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      item_name: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+      item_variation_id: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      variation_name: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      price: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true
+      },
+      currency: {
+        type: DataTypes.STRING(3),
+        allowNull: true
+      },
+      additional_notes: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      user_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-          model: Products,
-          key: 'product_id'
+          model: Users,
+          key: 'user_id'
         }
       },
       quantity: {
@@ -35,8 +68,8 @@ export const CartModel = (sequelize: Sequelize) => {
     },
     {
       sequelize,
-      tableName: 'Cart',
-      timestamps: false
+      tableName: 'cart',
+      timestamps: true
     }
   )
 }

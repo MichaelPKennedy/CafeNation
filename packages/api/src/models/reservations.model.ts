@@ -13,7 +13,7 @@ export const ReservationModel = (sequelize: Sequelize) => {
         autoIncrement: true
       },
       location_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: true,
         references: {
           model: Locations,

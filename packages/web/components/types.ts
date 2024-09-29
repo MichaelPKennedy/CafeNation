@@ -167,12 +167,18 @@ export interface TransformedItemOptionValue extends ItemOptionValue {
   name: string;
 }
 
-export type CartItemType = {
+export interface CartItemType {
+  cart_id: number;
   id: string;
   name: string;
-  size?: string;
-  flavor?: string;
-  imageUrl?: string;
-  price: string;
+  size: string;
+  flavor: string;
+  description?: string;
+  item_variation_id?: string;
+  variation_name?: string;
+  price: number;
+  currency: string;
+  additional_notes?: string;
   quantity: number;
-};
+  imageUrl?: string;
+}

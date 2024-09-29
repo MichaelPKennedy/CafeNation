@@ -19,11 +19,17 @@ const CartModal = ({
   isVisible: boolean;
   onClose: () => void;
 }) => {
-  const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
+  const { cartItems, addToCart, removeFromCart, checkout } =
+    useContext(CartContext);
 
-  const totalAmount = cartItems.reduce((sum, item) => {
-    return sum + (parseFloat(item.price) / 100) * item.quantity;
-  }, 0);
+  const [totalAmount, setTotalAmount] = React.useState(0);
+
+  React.useEffect(() => {
+    const calculatedTotal = cartItems.reduce((sum, item) => {
+      return sum + item.price * item.quantity;
+    }, 0);
+    setTotalAmount(calculatedTotal);
+  }, [cartItems]);
 
   const incrementQuantity = (id: string) => {
     const item = cartItems.find((item) => item.id === id);
@@ -34,6 +40,15 @@ const CartModal = ({
 
   const decrementQuantity = (id: string) => {
     removeFromCart(id);
+  };
+
+  const handlePlaceOrder = async () => {
+    try {
+      await checkout(totalAmount);
+      onClose();
+    } catch (error) {
+      console.error("Error placing order:", error);
+    }
   };
 
   return (
@@ -63,7 +78,7 @@ const CartModal = ({
                 <Text style={styles.itemName}>{item.name}</Text>
                 {item.size && <Text>Size: {item.size}</Text>}
                 {item.flavor && <Text>Flavor: {item.flavor}</Text>}
-                <Text>Price: ${parseFloat(item.price) / 100}</Text>
+                <Text>Price: ${item.price / 100}</Text>
                 <View style={styles.quantityContainer}>
                   <TouchableOpacity onPress={() => decrementQuantity(item.id)}>
                     <Text style={styles.quantityButton}>-</Text>
@@ -78,15 +93,21 @@ const CartModal = ({
           )}
         />
         <View style={styles.totalContainer}>
-          <Text style={styles.totalText}>Total: ${totalAmount.toFixed(2)}</Text>
+          <Text style={styles.totalText}>
+            Total: ${(totalAmount / 100).toFixed(2)}
+          </Text>
         </View>
-        <Button title="Continue" onPress={onClose} color="#56C568" />
+        <Button
+          title="Place Order"
+          onPress={handlePlaceOrder}
+          color="#56C568"
+        />
+        <Button title="Continue Shopping" onPress={onClose} color="#4A90E2" />
       </View>
     </Modal>
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
   modalView: {
     marginTop: 50,
@@ -150,6 +171,13 @@ const styles = StyleSheet.create({
   totalText: {
     fontSize: 20,
     fontWeight: "bold",
+  },
+  buttonContainer: {
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  button: {
+    marginBottom: 10,
   },
 });
 

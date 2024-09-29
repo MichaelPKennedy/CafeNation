@@ -21,7 +21,7 @@ export const OrderModel = (sequelize: Sequelize) => {
         }
       },
       location_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: true,
         references: {
           model: Locations,
@@ -41,6 +41,10 @@ export const OrderModel = (sequelize: Sequelize) => {
         defaultValue: DataTypes.NOW
       },
       special_instruction: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      source_id: {
         type: DataTypes.STRING,
         allowNull: true
       }
