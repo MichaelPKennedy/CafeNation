@@ -1,76 +1,36 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Text } from "react-native";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import FeaturedScreen from "./FeaturedScreen";
-import MenuScreen from "./MenuScreen";
-import feathersClient from "../feathersClient";
-import { MenuData } from "./types";
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { createStackNavigator } from "@react-navigation/stack";
+import CategoryScreen from "./CategoryScreen";
+import ChooseItemScreen from "./ChooseItemScreen";
+import OrderSubTabs from "./OrderSubTabs";
+import { MenuDataProvider } from "./MenuDataContext";
 
-type RootStackParamList = {
-  CategoryScreen: { selectedCategory: string };
-};
+const OrderStack = createStackNavigator();
 
-type OrderTabNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "CategoryScreen"
->;
-
-const Tab = createMaterialTopTabNavigator();
-
-const OrderTab = () => {
-  const [menuData, setMenuData] = useState<MenuData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const navigation = useNavigation<OrderTabNavigationProp>();
-
-  const handleSelectCategory = (category: string) => {
-    navigation.navigate("CategoryScreen", { selectedCategory: category });
-  };
-
-  useEffect(() => {
-    feathersClient
-      .service("menu")
-      .find()
-      .then((response: MenuData) => {
-        console.log("Menu data:", response);
-        setMenuData(response);
-      })
-      .catch((error: Error) => {
-        console.error("Error fetching menu items:", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, []);
-
-  if (isLoading || !menuData) {
-    return (
-      <View style={[styles.container, styles.loadingContainer]}>
-        <Text>Loading menu data...</Text>
-      </View>
-    );
-  }
-
+const OrderStackNavigator = () => {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Featured">
-        {() => (
-          <FeaturedScreen
-            data={menuData}
-            onSelectCategory={handleSelectCategory}
+    <View style={styles.container}>
+      <MenuDataProvider>
+        <OrderStack.Navigator>
+          <OrderStack.Screen
+            name="OrderSubTabs"
+            options={{ headerShown: false }}
+            component={OrderSubTabs}
           />
-        )}
-      </Tab.Screen>
-      <Tab.Screen name="Menu">
-        {() => (
-          <MenuScreen
-            data={menuData.data || []}
-            onSelectCategory={handleSelectCategory}
+          <OrderStack.Screen
+            name="CategoryScreen"
+            options={{ headerShown: false }}
+            component={CategoryScreen}
           />
-        )}
-      </Tab.Screen>
-    </Tab.Navigator>
+          <OrderStack.Screen
+            name="ChooseItemScreen"
+            options={{ presentation: "modal", headerShown: false }}
+            component={ChooseItemScreen}
+          />
+        </OrderStack.Navigator>
+      </MenuDataProvider>
+    </View>
   );
 };
 
@@ -78,10 +38,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  loadingContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
 });
 
-export default OrderTab;
+export default OrderStackNavigator;

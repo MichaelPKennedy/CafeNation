@@ -1,12 +1,12 @@
 import React from "react";
 import { StyleSheet } from "react-native";
-import OrderStackNavigator from "../../components/OrderStackNavigator";
+import OrderTab from "../../components/OrderTab";
 import { NavigationContainer } from "@react-navigation/native";
 
 export default function TabOneScreen() {
   return (
     <NavigationContainer independent={true}>
-      <OrderStackNavigator />
+      <OrderTab />
     </NavigationContainer>
   );
 }
