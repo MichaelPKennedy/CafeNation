@@ -14,7 +14,7 @@ type CartContextType = {
   cartItems: CartItemType[];
   addToCart: (item: CartItemType) => void;
   removeFromCart: (itemId: string) => void;
-  checkout: (totalAmount: number) => Promise<void>;
+  checkout: (totalAmount: number, sourceId: string) => Promise<void>;
 };
 
 export const CartContext = createContext<CartContextType>({
@@ -104,7 +104,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
   };
 
-  const checkout = async (totalAmount: number) => {
+  const checkout = async (totalAmount: number, sourceId: string) => {
     const locationId = process.env.EXPO_PUBLIC_LOCATION_ID;
     console.log("Location ID:", locationId);
     try {
@@ -120,6 +120,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         })),
         total_price: totalAmount,
         location_id: locationId,
+        source_id: sourceId,
       });
 
       console.log("Order created:", order);

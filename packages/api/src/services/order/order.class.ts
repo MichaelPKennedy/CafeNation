@@ -40,11 +40,14 @@ export class OrderService implements ServiceMethods<any> {
   }
 
   async create(data: any, params?: OrderParams): Promise<any> {
-    const { user_id, cart_items, total_price, location_id } = data
+    const { user_id, cart_items, total_price, location_id, source_id } = data
+
+    if (!source_id) {
+      throw new Error('source_id is required')
+    }
 
     try {
       const result = await this.sequelize.transaction(async (t: any) => {
-        const source_id = `source_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         const order = await this.sequelize.models.Orders.create(
           {
             user_id,
@@ -79,7 +82,7 @@ export class OrderService implements ServiceMethods<any> {
             idempotencyKey: `${order.order_id}_payment`,
             orderId: squareOrderId,
             amountMoney: {
-              amount: BigInt(total_price * 100),
+              amount: total_price,
               currency: 'USD'
             },
             locationId: location_id
@@ -97,7 +100,9 @@ export class OrderService implements ServiceMethods<any> {
         return order
       })
 
-      await this.app.service('cart').remove(null, { query: { user_id } })
+      if (user_id) {
+        await this.app.service('cart').remove(null, { query: { user_id } })
+      }
 
       return result
     } catch (error) {

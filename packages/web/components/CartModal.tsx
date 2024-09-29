@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import {
   Modal,
   View,
@@ -21,14 +21,17 @@ const CartModal = ({
 }) => {
   const { cartItems, addToCart, removeFromCart, checkout } =
     useContext(CartContext);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState("");
 
-  const [totalAmount, setTotalAmount] = React.useState(0);
+  const [calculatedTotal, setCalculatedTotal] = React.useState(0);
 
   React.useEffect(() => {
     const calculatedTotal = cartItems.reduce((sum, item) => {
       return sum + item.price * item.quantity;
     }, 0);
-    setTotalAmount(calculatedTotal);
+    setCalculatedTotal(calculatedTotal);
   }, [cartItems]);
 
   const incrementQuantity = (id: string) => {
@@ -42,14 +45,50 @@ const CartModal = ({
     removeFromCart(id);
   };
 
+  const handleSelectPayment = (paymentMethod: string) => {
+    setSelectedPayment(paymentMethod);
+  };
+
+  const handleProceedToPayment = () => {
+    setShowPaymentOptions(true);
+  };
+
   const handlePlaceOrder = async () => {
+    if (!selectedPayment) {
+      console.error("No payment method selected");
+      return;
+    }
+
     try {
-      await checkout(totalAmount);
+      // Use a test card nonce for Square Sandbox
+      const fakeSourceId = "cnon:card-nonce-ok";
+      await checkout(calculatedTotal, fakeSourceId);
       onClose();
     } catch (error) {
       console.error("Error placing order:", error);
     }
   };
+
+  const renderPaymentOptions = () => (
+    <View>
+      <Text style={styles.sectionTitle}>Select Payment Method</Text>
+      <TouchableOpacity
+        style={[
+          styles.paymentOption,
+          selectedPayment === "Test Credit Card" && styles.selectedPayment,
+        ]}
+        onPress={() => handleSelectPayment("Test Credit Card")}
+      >
+        <Text>Test Credit Card (4111 1111 1111 1111)</Text>
+      </TouchableOpacity>
+      <Button
+        title="Place Order"
+        onPress={handlePlaceOrder}
+        disabled={!selectedPayment}
+        color="#56C568"
+      />
+    </View>
+  );
 
   return (
     <Modal
@@ -67,41 +106,58 @@ const CartModal = ({
             style={styles.backIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.modalTitle}>Review order ({cartItems.length})</Text>
-        <FlatList
-          data={cartItems}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.itemContainer}>
-              <Image source={{ uri: item.imageUrl }} style={styles.itemImage} />
-              <View style={styles.itemDetails}>
-                <Text style={styles.itemName}>{item.name}</Text>
-                {item.size && <Text>Size: {item.size}</Text>}
-                {item.flavor && <Text>Flavor: {item.flavor}</Text>}
-                <Text>Price: ${item.price / 100}</Text>
-                <View style={styles.quantityContainer}>
-                  <TouchableOpacity onPress={() => decrementQuantity(item.id)}>
-                    <Text style={styles.quantityButton}>-</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.quantity}>{item.quantity}</Text>
-                  <TouchableOpacity onPress={() => incrementQuantity(item.id)}>
-                    <Text style={styles.quantityButton}>+</Text>
-                  </TouchableOpacity>
+        <Text style={styles.modalTitle}>
+          {showPaymentOptions
+            ? "Payment"
+            : `Review order (${cartItems.length})`}
+        </Text>
+        {!showPaymentOptions ? (
+          <>
+            <FlatList
+              data={cartItems}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <View style={styles.itemContainer}>
+                  <Image
+                    source={{ uri: item.imageUrl }}
+                    style={styles.itemImage}
+                  />
+                  <View style={styles.itemDetails}>
+                    <Text style={styles.itemName}>{item.name}</Text>
+                    {item.size && <Text>Size: {item.size}</Text>}
+                    {item.flavor && <Text>Flavor: {item.flavor}</Text>}
+                    <Text>Price: ${item.price / 100}</Text>
+                    <View style={styles.quantityContainer}>
+                      <TouchableOpacity
+                        onPress={() => decrementQuantity(item.id)}
+                      >
+                        <Text style={styles.quantityButton}>-</Text>
+                      </TouchableOpacity>
+                      <Text style={styles.quantity}>{item.quantity}</Text>
+                      <TouchableOpacity
+                        onPress={() => incrementQuantity(item.id)}
+                      >
+                        <Text style={styles.quantityButton}>+</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
                 </View>
-              </View>
+              )}
+            />
+            <View style={styles.totalContainer}>
+              <Text style={styles.totalText}>
+                Total: ${(totalAmount / 100).toFixed(2)}
+              </Text>
             </View>
-          )}
-        />
-        <View style={styles.totalContainer}>
-          <Text style={styles.totalText}>
-            Total: ${(totalAmount / 100).toFixed(2)}
-          </Text>
-        </View>
-        <Button
-          title="Place Order"
-          onPress={handlePlaceOrder}
-          color="#56C568"
-        />
+            <Button
+              title="Proceed to Payment"
+              onPress={handleProceedToPayment}
+              color="#56C568"
+            />
+          </>
+        ) : (
+          renderPaymentOptions()
+        )}
         <Button title="Continue Shopping" onPress={onClose} color="#4A90E2" />
       </View>
     </Modal>
@@ -178,6 +234,22 @@ const styles = StyleSheet.create({
   },
   button: {
     marginBottom: 10,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  paymentOption: {
+    padding: 15,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  selectedPayment: {
+    borderColor: "#56C568",
+    backgroundColor: "#e6f7e6",
   },
 });
 
