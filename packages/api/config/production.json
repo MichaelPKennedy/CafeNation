@@ -1,38 +1,4 @@
 {
     "public": "public",
-    "authentication":{
-        "authStrategies": [
-            "jwt",
-            "local",
-            "custom",
-            "google"
-        ],
-        "jwtOptions": {
-            "header": {
-              "typ": "access"
-            },
-            "audience": "https://www.homeknown.app/",
-            "issuer": "feathers",
-            "algorithm": "HS256",
-            "expiresIn": "1d"
-          },
-        "oauth": {
-            "redirect": "https://www.homeknown.app/login",
-            "google": {
-              "scope": ["profile", "openid", "email"],
-              "successRedirect": "https://www.homeknown.app/login",
-              "failureRedirect": "https://www.homeknown.app/login",
-              "strategy": "google",
-              "callbackURL": "https://homeknown-api-4fe050b813af.herokuapp.com/oauth/google/callback"
-            }
-        },
-        "local": {
-            "usernameField": "login",
-            "passwordField": "password"
-          },
-          "custom": {
-            "usernameField": "login",
-            "passwordField": "password"
-          }
-    }
+    "host": "0.0.0.0"
 }
