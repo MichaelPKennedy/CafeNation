@@ -19,7 +19,7 @@ const CartModal = ({
   isVisible: boolean;
   onClose: () => void;
 }) => {
-  const { cartItems, addToCart, removeFromCart, checkout } =
+  const { cartItems, addToCart, removeFromCart, checkout, orderStatus } =
     useContext(CartContext);
   const [totalAmount, setTotalAmount] = useState(0);
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
@@ -63,9 +63,28 @@ const CartModal = ({
       // Use a test card nonce for Square Sandbox
       const fakeSourceId = "cnon:card-nonce-ok";
       await checkout(calculatedTotal, fakeSourceId);
-      onClose();
+      // onClose();
     } catch (error) {
       console.error("Error placing order:", error);
+    }
+  };
+
+  const renderOrderStatus = () => {
+    switch (orderStatus) {
+      case "processing":
+        return <Text style={styles.orderStatus}>Processing your order...</Text>;
+      case "completed":
+        return (
+          <Text style={styles.orderStatus}>Order placed successfully!</Text>
+        );
+      case "failed":
+        return (
+          <Text style={styles.orderStatus}>
+            Order failed. Please try again.
+          </Text>
+        );
+      default:
+        return null;
     }
   };
 
@@ -81,10 +100,11 @@ const CartModal = ({
       >
         <Text>Test Credit Card (4111 1111 1111 1111)</Text>
       </TouchableOpacity>
+      {renderOrderStatus()}
       <Button
         title="Place Order"
         onPress={handlePlaceOrder}
-        disabled={!selectedPayment}
+        disabled={!selectedPayment || orderStatus === "processing"}
         color="#56C568"
       />
     </View>
@@ -250,6 +270,13 @@ const styles = StyleSheet.create({
   selectedPayment: {
     borderColor: "#56C568",
     backgroundColor: "#e6f7e6",
+  },
+  orderStatus: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: 10,
+    color: "#56C568",
   },
 });
 

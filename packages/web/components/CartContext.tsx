@@ -9,12 +9,15 @@ import React, {
 import { UserContext } from "./UserContext";
 import feathersClient from "../feathersClient";
 import { CartItemType } from "./types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type CartContextType = {
   cartItems: CartItemType[];
   addToCart: (item: CartItemType) => void;
   removeFromCart: (itemId: string) => void;
   checkout: (totalAmount: number, sourceId: string) => Promise<void>;
+  orderStatus: string;
+  setOrderStatus: (status: string) => void;
 };
 
 export const CartContext = createContext<CartContextType>({
@@ -22,6 +25,8 @@ export const CartContext = createContext<CartContextType>({
   addToCart: () => {},
   removeFromCart: () => {},
   checkout: async () => {},
+  orderStatus: "",
+  setOrderStatus: () => {},
 });
 
 type CartProviderProps = {
@@ -30,6 +35,7 @@ type CartProviderProps = {
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItemType[]>([]);
+  const [orderStatus, setOrderStatus] = useState<string>("");
   const { user } = useContext(UserContext);
 
   const fetchCartItems = useCallback(async () => {
@@ -44,14 +50,12 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       }
     } else {
       try {
-        const localCart =
-          typeof window !== "undefined" &&
-          window.localStorage?.getItem("guestCart");
+        const localCart = await AsyncStorage.getItem("guestCart");
         if (localCart) {
           setCartItems(JSON.parse(localCart));
         }
       } catch (error) {
-        console.error("Error accessing localStorage:", error);
+        console.error("Error accessing AsyncStorage:", error);
       }
     }
   }, [user]);
@@ -83,7 +87,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     } else {
       const updatedCart = [...cartItems, newItem];
       setCartItems(updatedCart);
-      localStorage.setItem("guestCart", JSON.stringify(updatedCart));
+      await AsyncStorage.setItem("guestCart", JSON.stringify(updatedCart));
     }
   };
 
@@ -100,7 +104,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     } else {
       const updatedCart = cartItems.filter((item) => item.id !== itemId);
       setCartItems(updatedCart);
-      localStorage.setItem("guestCart", JSON.stringify(updatedCart));
+      await AsyncStorage.setItem("guestCart", JSON.stringify(updatedCart));
     }
   };
 
@@ -108,6 +112,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     const locationId = process.env.EXPO_PUBLIC_LOCATION_ID;
     console.log("Location ID:", locationId);
     try {
+      setOrderStatus("processing");
       const order = await feathersClient.service("order").create({
         user_id: user?.id || null,
         cart_items: cartItems.map((item) => ({
@@ -130,18 +135,27 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           query: { user_id: user.id },
         });
       } else {
-        localStorage.removeItem("guestCart");
+        await AsyncStorage.removeItem("guestCart");
       }
 
       setCartItems([]);
+      setOrderStatus("completed");
     } catch (error) {
       console.error("Checkout failed:", error);
+      setOrderStatus("failed");
     }
   };
 
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, removeFromCart, checkout }}
+      value={{
+        cartItems,
+        addToCart,
+        removeFromCart,
+        checkout,
+        orderStatus,
+        setOrderStatus,
+      }}
     >
       {children}
     </CartContext.Provider>
