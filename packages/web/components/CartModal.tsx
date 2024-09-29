@@ -74,8 +74,8 @@ const CartModal = ({
       const fakeSourceId = "cnon:card-nonce-ok";
       await checkout(calculatedTotal, fakeSourceId);
       setOrderStatus("completed");
-      onClose(); // Close the cart modal
-      setShowSuccessModal(true); // Show the success modal
+      onClose();
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Error placing order:", error);
       setOrderStatus("failed");
@@ -172,11 +172,6 @@ const CartModal = ({
       </View>
     </View>
   );
-
-  const handleBackToCart = () => {
-    setIsPaymentView(false);
-    setShowPaymentOptions(false);
-  };
 
   const handleClose = () => {
     setIsPaymentView(false);
