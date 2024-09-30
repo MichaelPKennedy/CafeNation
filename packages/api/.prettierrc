@@ -5,5 +5,4 @@
   "semi": false,
   "trailingComma": "none",
   "singleQuote": true,
-  "parser": "typescript"
 }

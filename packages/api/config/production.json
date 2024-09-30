@@ -1,4 +1,15 @@
 {
-    "public": "public",
-    "host": "0.0.0.0"
+  "public": "public",
+  "host": "0.0.0.0",
+  "authentication": {
+    "authStrategies": ["local", "custom"],
+    "local": {
+      "usernameField": "login",
+      "passwordField": "password"
+    },
+    "custom": {
+      "usernameField": "login",
+      "passwordField": "password"
+    }
+  }
 }
