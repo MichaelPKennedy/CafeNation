@@ -23,7 +23,6 @@ import type { Application } from './declarations'
 import { configurationValidator } from './configuration'
 import { logger } from './logger'
 import { logError } from './hooks/log-error'
-import { authentication } from './authentication'
 import { services } from './services/index'
 import { channels } from './channels'
 import { CartModel } from './models/cart.model'
@@ -231,7 +230,7 @@ app.configure(
     }
   })
 )
-app.configure(authentication)
+
 app.configure(oauth({}))
 app.configure(services)
 app.configure(channels)
