@@ -13,7 +13,6 @@ import { Request, Response, NextFunction } from 'express'
 import configuration from '@feathersjs/configuration'
 import socketio from '@feathersjs/socketio'
 import { Sequelize } from 'sequelize'
-const { oauth } = require('@feathersjs/authentication-oauth')
 import cookieParser from 'cookie-parser'
 import crypto from 'crypto'
 import { Client, Environment } from 'square'
@@ -231,7 +230,6 @@ app.configure(
   })
 )
 
-app.configure(oauth({}))
 app.configure(services)
 app.configure(channels)
 
