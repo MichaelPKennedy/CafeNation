@@ -2,8 +2,8 @@
   "name": "root",
   "private": true,
   "workspaces": [
-    " ./packages/api",
-    "./packages/web"
+    "packages/api",
+    "packages/web"
   ],
   "dependencies": {
     "@google-cloud/storage": "^7.6.0",
@@ -11,9 +11,11 @@
     "web-vitals": "^3.4.0"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.14.5"
+    "@babel/plugin-proposal-private-property-in-object": "^7.14.5",
+    "concurrently": "^9.0.1"
   },
   "scripts": {
-    "deploy": " git subtree push --prefix packages/web heroku-client master && git subtree push --prefix packages/api heroku-api master"
+    "deploy": "git subtree push --prefix packages/web heroku-client master && git subtree push --prefix packages/api heroku-api master",
+    "dev": "concurrently \"npm run start --workspace=web\" \"npm run dev --workspace=api\""
   }
 }
